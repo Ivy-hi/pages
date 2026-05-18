@@ -1,0 +1,13 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+
+name = "agent-scheduler"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-05-18"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "agent-scheduler"
+database_id = "replace-with-cloudflare-d1-database-id"
+
+[vars]
+APP_TIMEZONE = "Asia/Shanghai"
