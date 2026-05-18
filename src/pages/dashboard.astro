@@ -1,0 +1,958 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Yi Han Dashboard">
+	<main class="dashboard">
+		<section id="login-view" class="login-view">
+			<div class="login-panel">
+				<img src="/hy_logo.svg" alt="" width="40" height="40" />
+				<h1>Dashboard</h1>
+				<form id="login-form">
+					<label>
+						<span>Password</span>
+						<input type="password" name="password" autocomplete="current-password" required />
+					</label>
+					<button type="submit">Sign in</button>
+				</form>
+				<p id="login-error" class="error" role="alert"></p>
+			</div>
+		</section>
+
+		<section id="app-view" class="app-view" hidden>
+			<header class="topbar">
+				<div>
+					<p class="eyebrow">Yi Han</p>
+					<h1>Coordination Desk</h1>
+				</div>
+				<div class="top-actions">
+					<span id="sync-status">Loading</span>
+					<button type="button" id="refresh-button">Refresh</button>
+					<button type="button" id="logout-button">Sign out</button>
+				</div>
+			</header>
+
+			<section class="metrics" aria-label="Summary">
+				<div>
+					<span id="metric-projects">0</span>
+					<p>Projects</p>
+				</div>
+				<div>
+					<span id="metric-tasks">0</span>
+					<p>Open tasks</p>
+				</div>
+				<div>
+					<span id="metric-schedule">0</span>
+					<p>Schedule blocks</p>
+				</div>
+				<div>
+					<span id="metric-proposals">0</span>
+					<p>Pending proposals</p>
+				</div>
+			</section>
+
+			<section class="proposals-band" aria-labelledby="proposals-title">
+				<div class="section-head">
+					<div>
+						<p class="eyebrow">Inbox</p>
+						<h2 id="proposals-title">Pending Proposals</h2>
+					</div>
+				</div>
+				<div id="proposal-list" class="proposal-list"></div>
+			</section>
+
+			<div class="workspace">
+				<section class="work-section" aria-labelledby="projects-title">
+					<div class="section-head">
+						<div>
+							<p class="eyebrow">GTD</p>
+							<h2 id="projects-title">Current Projects</h2>
+						</div>
+					</div>
+
+					<form id="project-form" class="inline-form">
+						<input name="name" placeholder="Project name" required />
+						<select name="priority" aria-label="Priority">
+							<option>P0</option>
+							<option>P1</option>
+							<option selected>P2</option>
+							<option>P3</option>
+						</select>
+						<input name="progress" type="number" min="0" max="100" value="0" aria-label="Progress" />
+						<button type="submit">Add project</button>
+						<textarea name="description" placeholder="Description"></textarea>
+					</form>
+
+					<div id="project-list" class="item-list"></div>
+
+					<div class="subsection-head">
+						<h3>Tasks</h3>
+					</div>
+					<form id="task-form" class="inline-form task-form">
+						<input name="title" placeholder="Task title" required />
+						<select name="project_id" aria-label="Project"></select>
+						<select name="priority" aria-label="Priority">
+							<option>P0</option>
+							<option>P1</option>
+							<option selected>P2</option>
+							<option>P3</option>
+						</select>
+						<input name="estimate_minutes" type="number" min="0" placeholder="Minutes" />
+						<input name="due_at" type="datetime-local" aria-label="Due at" />
+						<button type="submit">Add task</button>
+						<textarea name="description" placeholder="Description"></textarea>
+					</form>
+					<div id="task-list" class="item-list"></div>
+				</section>
+
+				<section class="work-section" aria-labelledby="schedule-title">
+					<div class="section-head">
+						<div>
+							<p class="eyebrow">Calendar</p>
+							<h2 id="schedule-title">Schedule</h2>
+						</div>
+					</div>
+
+					<form id="schedule-form" class="inline-form schedule-form">
+						<input name="title" placeholder="Block title" required />
+						<input name="start_at" type="datetime-local" required aria-label="Start" />
+						<input name="end_at" type="datetime-local" required aria-label="End" />
+						<select name="project_id" aria-label="Project"></select>
+						<select name="task_id" aria-label="Task"></select>
+						<button type="submit">Add block</button>
+						<textarea name="description" placeholder="Description"></textarea>
+					</form>
+
+					<div id="schedule-list" class="item-list"></div>
+
+					<div class="subsection-head">
+						<h3>Agent Keys</h3>
+					</div>
+					<form id="agent-form" class="inline-form agent-form">
+						<input name="name" placeholder="Agent name" required />
+						<button type="submit">Create key</button>
+					</form>
+					<div id="new-key" class="key-output" hidden></div>
+					<div id="agent-list" class="item-list compact"></div>
+				</section>
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<script is:inline>
+	const state = {
+		data: null,
+		newAgentKey: "",
+	};
+
+	const $ = (selector) => document.querySelector(selector);
+
+	const priorityOptions = (selected = "P2") =>
+		["P0", "P1", "P2", "P3"].map((value) => `<option ${value === selected ? "selected" : ""}>${value}</option>`).join("");
+
+	const projectOptions = (selected = "") => {
+		const projects = state.data?.projects || [];
+		return `<option value="">No project</option>${projects.map((project) =>
+			`<option value="${escapeHtml(project.id)}" ${project.id === selected ? "selected" : ""}>${escapeHtml(project.name)}</option>`
+		).join("")}`;
+	};
+
+	const taskOptions = (selected = "") => {
+		const tasks = state.data?.tasks || [];
+		return `<option value="">No task</option>${tasks.map((task) =>
+			`<option value="${escapeHtml(task.id)}" ${task.id === selected ? "selected" : ""}>${escapeHtml(task.title)}</option>`
+		).join("")}`;
+	};
+
+	async function api(path, options = {}) {
+		const response = await fetch(`/api/v1${path}`, {
+			method: options.method || "GET",
+			credentials: "include",
+			headers: options.body ? { "Content-Type": "application/json" } : {},
+			body: options.body ? JSON.stringify(options.body) : undefined,
+		});
+		const payload = await response.json().catch(() => ({}));
+		if (!response.ok) {
+			throw new Error(payload.message || payload.error || "Request failed");
+		}
+		return payload;
+	}
+
+	async function boot() {
+		const session = await api("/admin/session").catch(() => ({ authenticated: false }));
+		if (session.authenticated) {
+			await loadDashboard();
+		} else {
+			showLogin();
+		}
+	}
+
+	async function loadDashboard() {
+		setStatus("Loading");
+		state.data = await api("/admin/dashboard");
+		renderDashboard();
+		setStatus("Synced");
+	}
+
+	function showLogin() {
+		$("#login-view").hidden = false;
+		$("#app-view").hidden = true;
+	}
+
+	function showApp() {
+		$("#login-view").hidden = true;
+		$("#app-view").hidden = false;
+	}
+
+	function setStatus(text) {
+		$("#sync-status").textContent = text;
+	}
+
+	function renderDashboard() {
+		showApp();
+		renderMetrics();
+		renderForms();
+		renderProposals();
+		renderProjects();
+		renderTasks();
+		renderSchedule();
+		renderAgents();
+	}
+
+	function renderMetrics() {
+		const data = state.data;
+		$("#metric-projects").textContent = data.projects.length;
+		$("#metric-tasks").textContent = data.tasks.filter((task) => !["done", "canceled"].includes(task.status)).length;
+		$("#metric-schedule").textContent = data.schedule_blocks.length;
+		$("#metric-proposals").textContent = data.proposals.filter((proposal) => proposal.status === "pending").length;
+	}
+
+	function renderForms() {
+		document.querySelectorAll('select[name="project_id"]').forEach((select) => {
+			const value = select.value;
+			select.innerHTML = projectOptions(value);
+		});
+		document.querySelectorAll('select[name="task_id"]').forEach((select) => {
+			const value = select.value;
+			select.innerHTML = taskOptions(value);
+		});
+	}
+
+	function renderProposals() {
+		const proposals = state.data.proposals.filter((proposal) => proposal.status === "pending");
+		$("#proposal-list").innerHTML = proposals.length
+			? proposals.map(renderProposal).join("")
+			: `<p class="empty">No pending proposals.</p>`;
+	}
+
+	function renderProposal(proposal) {
+		const payload = escapeHtml(JSON.stringify(proposal.payload, null, 2));
+		const createTask = proposal.type === "task";
+		const createSchedule = proposal.type === "calendar_block";
+		const updateProject = proposal.type === "project_update";
+		return `
+			<form class="proposal-item" data-proposal-id="${escapeHtml(proposal.id)}">
+				<div class="item-main">
+					<div class="item-title-row">
+						<strong>${escapeHtml(proposal.payload.title || proposal.payload.project_name || proposal.type)}</strong>
+						<span>${escapeHtml(proposal.type)}</span>
+					</div>
+					<p>${escapeHtml(proposal.agent_name)} · ${formatDate(proposal.created_at)}</p>
+				</div>
+				<textarea name="payload" spellcheck="false">${payload}</textarea>
+				<div class="proposal-actions">
+					<label><input type="checkbox" name="create_task" ${createTask ? "checked" : ""} /> Task</label>
+					<label><input type="checkbox" name="create_schedule_block" ${createSchedule ? "checked" : ""} /> Schedule</label>
+					<label><input type="checkbox" name="update_project" ${updateProject ? "checked" : ""} /> Project</label>
+					<input name="reviewer_note" placeholder="Note" />
+					<button type="submit">Approve</button>
+					<button type="button" data-action="reject-proposal" data-id="${escapeHtml(proposal.id)}">Reject</button>
+				</div>
+			</form>
+		`;
+	}
+
+	function renderProjects() {
+		const projects = state.data.projects;
+		$("#project-list").innerHTML = projects.length
+			? projects.map((project) => `
+				<form class="item-row" data-entity="project" data-id="${escapeHtml(project.id)}">
+					<div class="item-main">
+						<input name="name" value="${escapeAttr(project.name)}" />
+						<textarea name="description">${escapeHtml(project.description)}</textarea>
+					</div>
+					<select name="status">
+						${["active", "waiting", "done", "archived"].map((status) => `<option ${status === project.status ? "selected" : ""}>${status}</option>`).join("")}
+					</select>
+					<select name="priority">${priorityOptions(project.priority)}</select>
+					<input name="progress" type="number" min="0" max="100" value="${project.progress}" />
+					<button type="submit">Save</button>
+				</form>
+			`).join("")
+			: `<p class="empty">No projects yet.</p>`;
+	}
+
+	function renderTasks() {
+		const tasks = state.data.tasks;
+		$("#task-list").innerHTML = tasks.length
+			? tasks.map((task) => `
+				<form class="item-row" data-entity="task" data-id="${escapeHtml(task.id)}">
+					<div class="item-main">
+						<input name="title" value="${escapeAttr(task.title)}" />
+						<textarea name="description">${escapeHtml(task.description)}</textarea>
+						<p>${escapeHtml(task.project_name || "No project")} · ${task.estimate_minutes || 0} min · ${task.due_at ? formatDate(task.due_at) : "No due date"}</p>
+					</div>
+					<select name="project_id">${projectOptions(task.project_id || "")}</select>
+					<select name="status">
+						${["inbox", "next", "scheduled", "waiting", "done", "canceled"].map((status) => `<option ${status === task.status ? "selected" : ""}>${status}</option>`).join("")}
+					</select>
+					<select name="priority">${priorityOptions(task.priority)}</select>
+					<input name="estimate_minutes" type="number" min="0" value="${task.estimate_minutes || ""}" />
+					<input name="due_at" type="datetime-local" value="${toLocalInput(task.due_at)}" />
+					<button type="submit">Save</button>
+				</form>
+			`).join("")
+			: `<p class="empty">No tasks yet.</p>`;
+	}
+
+	function renderSchedule() {
+		const blocks = state.data.schedule_blocks;
+		$("#schedule-list").innerHTML = blocks.length
+			? blocks.map((block) => `
+				<form class="item-row schedule-row" data-entity="schedule" data-id="${escapeHtml(block.id)}">
+					<div class="item-main">
+						<input name="title" value="${escapeAttr(block.title)}" />
+						<textarea name="description">${escapeHtml(block.description)}</textarea>
+						<p>${formatRange(block.start_at, block.end_at)} · ${escapeHtml(block.project_name || "No project")}</p>
+					</div>
+					<input name="start_at" type="datetime-local" value="${toLocalInput(block.start_at)}" />
+					<input name="end_at" type="datetime-local" value="${toLocalInput(block.end_at)}" />
+					<select name="project_id">${projectOptions(block.project_id || "")}</select>
+					<select name="task_id">${taskOptions(block.task_id || "")}</select>
+					<select name="status">
+						${["planned", "focus", "meeting", "done", "canceled"].map((status) => `<option ${status === block.status ? "selected" : ""}>${status}</option>`).join("")}
+					</select>
+					<button type="submit">Save</button>
+				</form>
+			`).join("")
+			: `<p class="empty">No schedule blocks yet.</p>`;
+	}
+
+	function renderAgents() {
+		const output = $("#new-key");
+		output.hidden = !state.newAgentKey;
+		output.innerHTML = state.newAgentKey
+			? `<code>${escapeHtml(state.newAgentKey)}</code><button type="button" data-action="copy-key">Copy</button>`
+			: "";
+
+		$("#agent-list").innerHTML = state.data.agents.length
+			? state.data.agents.map((agent) => `
+				<div class="item-row agent-row">
+					<div class="item-main">
+						<strong>${escapeHtml(agent.name)}</strong>
+						<p>${agent.scopes.map(escapeHtml).join(", ")} · ${agent.last_seen_at ? formatDate(agent.last_seen_at) : "Never seen"}</p>
+					</div>
+					<button type="button" data-action="toggle-agent" data-id="${escapeHtml(agent.id)}" data-active="${agent.active ? "1" : "0"}">
+						${agent.active ? "Disable" : "Enable"}
+					</button>
+				</div>
+			`).join("")
+			: `<p class="empty">No agents yet.</p>`;
+	}
+
+	$("#login-form").addEventListener("submit", async (event) => {
+		event.preventDefault();
+		const form = event.currentTarget;
+		$("#login-error").textContent = "";
+		const password = new FormData(form).get("password");
+		try {
+			await api("/admin/login", { method: "POST", body: { password } });
+			form.reset();
+			await loadDashboard();
+		} catch (error) {
+			$("#login-error").textContent = error.message;
+		}
+	});
+
+	$("#logout-button").addEventListener("click", async () => {
+		await api("/admin/logout", { method: "POST", body: {} }).catch(() => null);
+		state.data = null;
+		showLogin();
+	});
+
+	$("#refresh-button").addEventListener("click", () => loadDashboard().catch(showError));
+
+	$("#project-form").addEventListener("submit", async (event) => {
+		event.preventDefault();
+		const form = event.currentTarget;
+		await saveProject(form);
+		form.reset();
+	});
+
+	$("#task-form").addEventListener("submit", async (event) => {
+		event.preventDefault();
+		const form = event.currentTarget;
+		await saveTask(form);
+		form.reset();
+	});
+
+	$("#schedule-form").addEventListener("submit", async (event) => {
+		event.preventDefault();
+		const form = event.currentTarget;
+		await saveSchedule(form);
+		form.reset();
+	});
+
+	$("#agent-form").addEventListener("submit", async (event) => {
+		event.preventDefault();
+		const form = event.currentTarget;
+		const body = Object.fromEntries(new FormData(form));
+		const result = await api("/admin/agents", { method: "POST", body }).catch(showError);
+		if (!result) return;
+		state.newAgentKey = result.api_key;
+		form.reset();
+		await loadDashboard();
+	});
+
+	document.addEventListener("submit", async (event) => {
+		const form = event.target;
+		if (!(form instanceof HTMLFormElement)) return;
+		if (form.dataset.entity === "project") {
+			event.preventDefault();
+			await saveProject(form, form.dataset.id);
+		}
+		if (form.dataset.entity === "task") {
+			event.preventDefault();
+			await saveTask(form, form.dataset.id);
+		}
+		if (form.dataset.entity === "schedule") {
+			event.preventDefault();
+			await saveSchedule(form, form.dataset.id);
+		}
+		if (form.classList.contains("proposal-item")) {
+			event.preventDefault();
+			await approveProposal(form);
+		}
+	});
+
+	document.addEventListener("click", async (event) => {
+		const button = event.target.closest("button[data-action]");
+		if (!button) return;
+		if (button.dataset.action === "reject-proposal") {
+			await api(`/admin/proposals/${button.dataset.id}/reject`, {
+				method: "POST",
+				body: { reviewer_note: "Rejected from dashboard" },
+			}).then(loadDashboard).catch(showError);
+		}
+		if (button.dataset.action === "toggle-agent") {
+			await api(`/admin/agents/${button.dataset.id}`, {
+				method: "PATCH",
+				body: { active: button.dataset.active !== "1" },
+			}).then(loadDashboard).catch(showError);
+		}
+		if (button.dataset.action === "copy-key" && state.newAgentKey) {
+			await navigator.clipboard.writeText(state.newAgentKey);
+			setStatus("Copied");
+		}
+	});
+
+	async function saveProject(form, id = "") {
+		const data = Object.fromEntries(new FormData(form));
+		const body = {
+			name: data.name,
+			description: data.description || "",
+			status: data.status || "active",
+			priority: data.priority || "P2",
+			progress: Number(data.progress || 0),
+		};
+		await api(id ? `/admin/projects/${id}` : "/admin/projects", {
+			method: id ? "PATCH" : "POST",
+			body,
+		}).then(loadDashboard).catch(showError);
+	}
+
+	async function saveTask(form, id = "") {
+		const data = Object.fromEntries(new FormData(form));
+		const body = {
+			project_id: data.project_id || null,
+			title: data.title,
+			description: data.description || "",
+			status: data.status || "inbox",
+			priority: data.priority || "P2",
+			estimate_minutes: data.estimate_minutes ? Number(data.estimate_minutes) : null,
+			due_at: fromLocalInput(data.due_at),
+		};
+		await api(id ? `/admin/tasks/${id}` : "/admin/tasks", {
+			method: id ? "PATCH" : "POST",
+			body,
+		}).then(loadDashboard).catch(showError);
+	}
+
+	async function saveSchedule(form, id = "") {
+		const data = Object.fromEntries(new FormData(form));
+		const body = {
+			project_id: data.project_id || null,
+			task_id: data.task_id || null,
+			title: data.title,
+			description: data.description || "",
+			start_at: fromLocalInput(data.start_at),
+			end_at: fromLocalInput(data.end_at),
+			status: data.status || "planned",
+		};
+		await api(id ? `/admin/schedule-blocks/${id}` : "/admin/schedule-blocks", {
+			method: id ? "PATCH" : "POST",
+			body,
+		}).then(loadDashboard).catch(showError);
+	}
+
+	async function approveProposal(form) {
+		let payload;
+		try {
+			payload = JSON.parse(new FormData(form).get("payload"));
+		} catch {
+			showError(new Error("Proposal payload is not valid JSON"));
+			return;
+		}
+		const data = new FormData(form);
+		await api(`/admin/proposals/${form.dataset.proposalId}/approve`, {
+			method: "POST",
+			body: {
+				payload,
+				create_task: data.has("create_task"),
+				create_schedule_block: data.has("create_schedule_block"),
+				update_project: data.has("update_project"),
+				reviewer_note: data.get("reviewer_note") || "",
+			},
+		}).then(loadDashboard).catch(showError);
+	}
+
+	function showError(error) {
+		setStatus(error.message || "Error");
+	}
+
+	function escapeHtml(value) {
+		return String(value ?? "")
+			.replaceAll("&", "&amp;")
+			.replaceAll("<", "&lt;")
+			.replaceAll(">", "&gt;")
+			.replaceAll('"', "&quot;")
+			.replaceAll("'", "&#039;");
+	}
+
+	function escapeAttr(value) {
+		return escapeHtml(value).replaceAll("\n", " ");
+	}
+
+	function formatDate(value) {
+		if (!value) return "";
+		return new Intl.DateTimeFormat("en", {
+			timeZone: "Asia/Shanghai",
+			month: "short",
+			day: "numeric",
+			hour: "2-digit",
+			minute: "2-digit",
+		}).format(new Date(value));
+	}
+
+	function formatRange(start, end) {
+		return `${formatDate(start)} - ${formatDate(end)}`;
+	}
+
+	function toLocalInput(value) {
+		if (!value) return "";
+		const date = new Date(value);
+		const offset = date.getTimezoneOffset();
+		const local = new Date(date.getTime() - offset * 60000);
+		return local.toISOString().slice(0, 16);
+	}
+
+	function fromLocalInput(value) {
+		return value ? new Date(value).toISOString() : null;
+	}
+
+	boot().catch(() => showLogin());
+</script>
+
+<style>
+	.dashboard {
+		min-height: 100vh;
+	}
+
+	.login-view {
+		min-height: 100vh;
+		display: grid;
+		place-items: center;
+		padding: 24px;
+	}
+
+	.login-panel {
+		width: min(380px, 100%);
+		padding: 28px;
+		border: 1px solid #d8d9d1;
+		border-radius: 8px;
+		background: #fff;
+	}
+
+	h1,
+	h2,
+	h3,
+	p {
+		margin: 0;
+	}
+
+	h1 {
+		font-size: 30px;
+		line-height: 1.1;
+		letter-spacing: 0;
+	}
+
+	h2 {
+		font-size: 22px;
+		line-height: 1.2;
+		letter-spacing: 0;
+	}
+
+	h3 {
+		font-size: 16px;
+	}
+
+	.login-panel h1 {
+		margin: 18px 0 20px;
+	}
+
+	.app-view {
+		padding: 28px;
+	}
+
+	.topbar,
+	.section-head,
+	.subsection-head,
+	.top-actions,
+	.proposal-actions,
+	.metrics {
+		display: flex;
+		align-items: center;
+	}
+
+	.topbar {
+		justify-content: space-between;
+		gap: 20px;
+		padding-bottom: 24px;
+		border-bottom: 1px solid #d8d9d1;
+	}
+
+	.top-actions {
+		gap: 10px;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+	}
+
+	#sync-status {
+		color: #696d62;
+		font-size: 13px;
+	}
+
+	.eyebrow {
+		margin-bottom: 6px;
+		color: #68725f;
+		font-size: 11px;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.metrics {
+		gap: 1px;
+		margin: 24px 0;
+		border: 1px solid #d8d9d1;
+		border-radius: 8px;
+		overflow: hidden;
+		background: #d8d9d1;
+	}
+
+	.metrics div {
+		flex: 1;
+		min-width: 150px;
+		padding: 16px;
+		background: #fff;
+	}
+
+	.metrics span {
+		display: block;
+		font-size: 28px;
+		font-weight: 760;
+	}
+
+	.metrics p,
+	.item-main p,
+	.empty {
+		color: #696d62;
+		font-size: 13px;
+		line-height: 1.5;
+	}
+
+	.proposals-band,
+	.work-section {
+		padding: 22px 0;
+		border-top: 1px solid #d8d9d1;
+	}
+
+	.workspace {
+		display: grid;
+		grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+		gap: 32px;
+	}
+
+	.section-head,
+	.subsection-head {
+		justify-content: space-between;
+		margin-bottom: 14px;
+	}
+
+	.subsection-head {
+		margin-top: 28px;
+		padding-top: 20px;
+		border-top: 1px solid #d8d9d1;
+	}
+
+	form {
+		margin: 0;
+	}
+
+	label {
+		display: grid;
+		gap: 6px;
+		margin-bottom: 14px;
+		color: #4f544a;
+		font-size: 13px;
+		font-weight: 700;
+	}
+
+	input,
+	select,
+	textarea,
+	button {
+		min-height: 38px;
+		border: 1px solid #cfd1c8;
+		border-radius: 6px;
+		font: inherit;
+		letter-spacing: 0;
+	}
+
+	input,
+	select,
+	textarea {
+		width: 100%;
+		padding: 8px 10px;
+		background: #fff;
+		color: #20211d;
+	}
+
+	textarea {
+		min-height: 42px;
+		resize: vertical;
+		line-height: 1.4;
+	}
+
+	button {
+		padding: 0 12px;
+		background: #20211d;
+		color: #fff;
+		font-weight: 700;
+		cursor: pointer;
+	}
+
+	button:hover {
+		background: #3a3c33;
+	}
+
+	button[type="button"] {
+		background: #fff;
+		color: #20211d;
+	}
+
+	button[type="button"]:hover {
+		background: #eff1ea;
+	}
+
+	.inline-form {
+		display: grid;
+		grid-template-columns: minmax(180px, 1fr) 86px 86px 116px;
+		gap: 8px;
+		margin-bottom: 14px;
+	}
+
+	.task-form {
+		grid-template-columns: minmax(160px, 1fr) 130px 76px 90px 168px 96px;
+	}
+
+	.schedule-form {
+		grid-template-columns: minmax(150px, 1fr) 160px 160px 130px 130px 96px;
+	}
+
+	.agent-form {
+		grid-template-columns: minmax(180px, 1fr) 112px;
+	}
+
+	.inline-form textarea {
+		grid-column: 1 / -1;
+	}
+
+	.item-list,
+	.proposal-list {
+		display: grid;
+		gap: 10px;
+	}
+
+	.item-row,
+	.proposal-item {
+		display: grid;
+		gap: 8px;
+		padding: 12px;
+		border: 1px solid #d8d9d1;
+		border-radius: 8px;
+		background: #fff;
+	}
+
+	.item-row {
+		grid-template-columns: minmax(220px, 1fr) 130px 86px 80px 82px;
+		align-items: start;
+	}
+
+	.task-form + .item-list .item-row {
+		grid-template-columns: minmax(220px, 1fr) 130px 112px 76px 90px 168px 72px;
+	}
+
+	.schedule-row {
+		grid-template-columns: minmax(220px, 1fr) 154px 154px 130px 130px 108px 72px;
+	}
+
+	.agent-row {
+		grid-template-columns: minmax(220px, 1fr) 90px;
+		align-items: center;
+	}
+
+	.item-main {
+		display: grid;
+		gap: 6px;
+	}
+
+	.item-title-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.item-title-row span {
+		padding: 4px 7px;
+		border-radius: 999px;
+		background: #e8eee1;
+		color: #405036;
+		font-size: 12px;
+		font-weight: 800;
+	}
+
+	.proposal-item {
+		grid-template-columns: minmax(220px, 0.5fr) minmax(320px, 1fr);
+	}
+
+	.proposal-item textarea {
+		min-height: 132px;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 12px;
+	}
+
+	.proposal-actions {
+		grid-column: 1 / -1;
+		gap: 10px;
+		flex-wrap: wrap;
+	}
+
+	.proposal-actions label {
+		display: inline-flex;
+		grid-auto-flow: column;
+		align-items: center;
+		gap: 6px;
+		margin: 0;
+	}
+
+	.proposal-actions input[type="checkbox"] {
+		width: 16px;
+		min-height: 16px;
+	}
+
+	.proposal-actions input[name="reviewer_note"] {
+		max-width: 220px;
+	}
+
+	.key-output {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 10px;
+		padding: 10px;
+		border: 1px solid #b9c6ad;
+		border-radius: 8px;
+		background: #eef5e7;
+	}
+
+	.key-output code {
+		flex: 1;
+		overflow-wrap: anywhere;
+		font-size: 12px;
+	}
+
+	.error {
+		min-height: 20px;
+		color: #a2352d;
+		font-size: 13px;
+	}
+
+	@media (max-width: 1100px) {
+		.workspace,
+		.proposal-item {
+			grid-template-columns: 1fr;
+		}
+
+		.item-row,
+		.task-form + .item-list .item-row,
+		.schedule-row,
+		.inline-form,
+		.task-form,
+		.schedule-form,
+		.agent-form {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.item-main,
+		.inline-form textarea,
+		.proposal-actions {
+			grid-column: 1 / -1;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.app-view {
+			padding: 18px;
+		}
+
+		.topbar,
+		.metrics,
+		.item-row,
+		.task-form + .item-list .item-row,
+		.schedule-row,
+		.inline-form,
+		.task-form,
+		.schedule-form,
+		.agent-form {
+			display: grid;
+			grid-template-columns: 1fr;
+		}
+
+		.top-actions {
+			justify-content: start;
+		}
+	}
+</style>
