@@ -247,20 +247,29 @@ import Layout from "../layouts/Layout.astro";
 	}
 
 	function renderProposal(proposal) {
+		const summary = proposalSummary(proposal);
 		const payload = escapeHtml(JSON.stringify(proposal.payload, null, 2));
 		const createTask = proposal.type === "task";
 		const createSchedule = proposal.type === "calendar_block";
 		const updateProject = proposal.type === "project_update";
 		return `
 			<form class="proposal-item" data-proposal-id="${escapeHtml(proposal.id)}">
-				<div class="item-main">
-					<div class="item-title-row">
-						<strong>${escapeHtml(proposal.payload.title || proposal.payload.project_name || proposal.type)}</strong>
-						<span>${escapeHtml(proposal.type)}</span>
+				<div class="proposal-summary">
+					<div class="proposal-heading">
+						<div>
+							<p class="proposal-source">${escapeHtml(proposal.agent_name)} · ${formatDate(proposal.created_at)}</p>
+							<h3>${escapeHtml(summary.title)}</h3>
+						</div>
+						<span class="proposal-type">${escapeHtml(summary.typeLabel)}</span>
 					</div>
-					<p>${escapeHtml(proposal.agent_name)} · ${formatDate(proposal.created_at)}</p>
+					${summary.chips.length ? `<div class="proposal-meta">${summary.chips.map(renderChip).join("")}</div>` : ""}
+					${summary.description ? `<p class="proposal-description">${escapeHtml(summary.description)}</p>` : ""}
+					${summary.rows.length ? `<dl class="proposal-details">${summary.rows.map(renderDetail).join("")}</dl>` : ""}
 				</div>
-				<textarea name="payload" spellcheck="false">${payload}</textarea>
+				<details class="payload-details">
+					<summary>Raw payload / edit</summary>
+					<textarea name="payload" spellcheck="false">${payload}</textarea>
+				</details>
 				<div class="proposal-actions">
 					<label><input type="checkbox" name="create_task" ${createTask ? "checked" : ""} /> Task</label>
 					<label><input type="checkbox" name="create_schedule_block" ${createSchedule ? "checked" : ""} /> Schedule</label>
@@ -321,19 +330,33 @@ import Layout from "../layouts/Layout.astro";
 		$("#schedule-list").innerHTML = blocks.length
 			? blocks.map((block) => `
 				<form class="item-row schedule-row" data-entity="schedule" data-id="${escapeHtml(block.id)}">
-					<div class="item-main">
-						<input name="title" value="${escapeAttr(block.title)}" />
-						<textarea name="description">${escapeHtml(block.description)}</textarea>
-						<p>${formatRange(block.start_at, block.end_at)} · ${escapeHtml(block.project_name || "No project")}</p>
+					<div class="schedule-summary">
+						<div class="item-title-row">
+							<strong>${escapeHtml(block.title)}</strong>
+							<span>${escapeHtml(block.status)}</span>
+						</div>
+						<p class="schedule-time">${formatRange(block.start_at, block.end_at)}</p>
+						<div class="schedule-meta">
+							${renderChip(block.project_name || "No project")}
+							${block.task_title ? renderChip(block.task_title) : ""}
+						</div>
+						${block.description ? `<p class="schedule-description">${escapeHtml(block.description)}</p>` : ""}
 					</div>
-					<input name="start_at" type="datetime-local" value="${toLocalInput(block.start_at)}" />
-					<input name="end_at" type="datetime-local" value="${toLocalInput(block.end_at)}" />
-					<select name="project_id">${projectOptions(block.project_id || "")}</select>
-					<select name="task_id">${taskOptions(block.task_id || "")}</select>
-					<select name="status">
-						${["planned", "focus", "meeting", "done", "canceled"].map((status) => `<option ${status === block.status ? "selected" : ""}>${status}</option>`).join("")}
-					</select>
-					<button type="submit">Save</button>
+					<div class="schedule-actions">
+						<button type="button" data-action="toggle-schedule-edit">Edit</button>
+					</div>
+					<div class="schedule-edit" hidden>
+						<input name="title" value="${escapeAttr(block.title)}" aria-label="Title" />
+						<input name="start_at" type="datetime-local" value="${toLocalInput(block.start_at)}" aria-label="Start" />
+						<input name="end_at" type="datetime-local" value="${toLocalInput(block.end_at)}" aria-label="End" />
+						<select name="project_id" aria-label="Project">${projectOptions(block.project_id || "")}</select>
+						<select name="task_id" aria-label="Task">${taskOptions(block.task_id || "")}</select>
+						<select name="status" aria-label="Status">
+							${["planned", "focus", "meeting", "done", "canceled"].map((status) => `<option ${status === block.status ? "selected" : ""}>${status}</option>`).join("")}
+						</select>
+						<textarea name="description" placeholder="Description">${escapeHtml(block.description)}</textarea>
+						<button type="submit">Save</button>
+					</div>
 				</form>
 			`).join("")
 			: `<p class="empty">No schedule blocks yet.</p>`;
@@ -451,6 +474,18 @@ import Layout from "../layouts/Layout.astro";
 				body: { active: button.dataset.active !== "1" },
 			}).then(loadDashboard).catch(showError);
 		}
+		if (button.dataset.action === "toggle-schedule-edit") {
+			const form = button.closest("form");
+			const editPanel = form?.querySelector(".schedule-edit");
+			if (!editPanel) return;
+			const nextOpen = editPanel.hidden;
+			editPanel.hidden = !nextOpen;
+			form.classList.toggle("is-editing", nextOpen);
+			button.textContent = nextOpen ? "Close" : "Edit";
+			if (nextOpen) {
+				editPanel.querySelector("input, select, textarea")?.focus();
+			}
+		}
 		if (button.dataset.action === "copy-key" && state.newAgentKey) {
 			await navigator.clipboard.writeText(state.newAgentKey);
 			setStatus("Copied");
@@ -527,6 +562,76 @@ import Layout from "../layouts/Layout.astro";
 		}).then(loadDashboard).catch(showError);
 	}
 
+	function proposalSummary(proposal) {
+		const payload = proposal.payload || {};
+		const typeLabel = proposalTypeLabel(proposal.type);
+		const title = payload.title || payload.project_name || payload.name || typeLabel;
+		const description = payload.description || payload.project_description || "";
+		const rows = proposalDetailRows(proposal.type, payload);
+		const chips = [
+			payload.priority,
+			payload.project_name,
+			payload.project_status || payload.status,
+		].filter(Boolean);
+		return { title, typeLabel, description, rows, chips };
+	}
+
+	function proposalTypeLabel(type) {
+		return {
+			task: "Task",
+			calendar_block: "Schedule",
+			project_update: "Project update",
+		}[type] || type;
+	}
+
+	function proposalDetailRows(type, payload) {
+		if (type === "task") {
+			return [
+				["Project", payload.project_name],
+				["Estimate", formatMinutes(payload.estimate_minutes)],
+				["Due", payload.due_at ? formatDate(payload.due_at) : ""],
+			].filter(([, value]) => Boolean(value));
+		}
+
+		if (type === "calendar_block") {
+			return [
+				["When", payload.start_at && payload.end_at ? formatRange(payload.start_at, payload.end_at) : ""],
+				["Project", payload.project_name],
+				["Task", payload.task_title || payload.task_id],
+			].filter(([, value]) => Boolean(value));
+		}
+
+		if (type === "project_update") {
+			return [
+				["Project", payload.project_name || payload.name],
+				["Progress", payload.progress === undefined ? "" : `${payload.progress}%`],
+				["Status", payload.project_status || payload.status],
+				["Priority", payload.priority],
+			].filter(([, value]) => Boolean(value));
+		}
+
+		return Object.entries(payload)
+			.filter(([, value]) => typeof value === "string" || typeof value === "number")
+			.slice(0, 4);
+	}
+
+	function renderDetail([label, value]) {
+		return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
+	}
+
+	function renderChip(value) {
+		return `<span class="meta-chip">${escapeHtml(value)}</span>`;
+	}
+
+	function formatMinutes(minutes) {
+		const value = Number(minutes);
+		if (!Number.isFinite(value) || value <= 0) return "";
+		if (value < 60) return `${value} min`;
+		const hours = Math.floor(value / 60);
+		const rest = value % 60;
+		return rest ? `${hours}h ${rest}m` : `${hours}h`;
+	}
+
 	function showError(error) {
 		setStatus(error.message || "Error");
 	}
@@ -574,7 +679,7 @@ import Layout from "../layouts/Layout.astro";
 	boot().catch(() => showLogin());
 </script>
 
-<style>
+<style is:global>
 	.dashboard {
 		min-height: 100vh;
 	}
@@ -825,7 +930,8 @@ import Layout from "../layouts/Layout.astro";
 	}
 
 	.schedule-row {
-		grid-template-columns: minmax(220px, 1fr) 154px 154px 130px 130px 108px 72px;
+		grid-template-columns: minmax(220px, 1fr) auto;
+		align-items: start;
 	}
 
 	.agent-row {
@@ -855,13 +961,125 @@ import Layout from "../layouts/Layout.astro";
 	}
 
 	.proposal-item {
-		grid-template-columns: minmax(220px, 0.5fr) minmax(320px, 1fr);
+		grid-template-columns: 1fr;
+		gap: 12px;
 	}
 
 	.proposal-item textarea {
 		min-height: 132px;
 		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 		font-size: 12px;
+	}
+
+	.proposal-summary,
+	.schedule-summary {
+		display: grid;
+		gap: 10px;
+		min-width: 0;
+	}
+
+	.proposal-heading {
+		display: flex;
+		align-items: start;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	.proposal-heading h3 {
+		font-size: 18px;
+		line-height: 1.25;
+	}
+
+	.proposal-source {
+		margin-bottom: 5px;
+		color: #696d62;
+		font-size: 12px;
+	}
+
+	.proposal-type,
+	.meta-chip {
+		display: inline-flex;
+		align-items: center;
+		min-height: 24px;
+		padding: 3px 7px;
+		border: 1px solid #d8d9d1;
+		border-radius: 6px;
+		background: #f4f5f0;
+		color: #4c5547;
+		font-size: 12px;
+		font-weight: 800;
+		white-space: nowrap;
+	}
+
+	.proposal-type {
+		background: #e8eee1;
+		color: #405036;
+	}
+
+	.proposal-meta,
+	.schedule-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+
+	.proposal-description,
+	.schedule-description,
+	.schedule-time {
+		color: #4f544a;
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.schedule-time {
+		font-weight: 700;
+		color: #20211d;
+	}
+
+	.proposal-details {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 8px;
+		margin: 0;
+	}
+
+	.proposal-details div {
+		padding: 9px 10px;
+		border: 1px solid #e1e2db;
+		border-radius: 6px;
+		background: #fafaf7;
+	}
+
+	.proposal-details dt {
+		margin-bottom: 4px;
+		color: #696d62;
+		font-size: 11px;
+		font-weight: 800;
+		text-transform: uppercase;
+	}
+
+	.proposal-details dd {
+		margin: 0;
+		color: #20211d;
+		font-size: 13px;
+		line-height: 1.4;
+	}
+
+	.payload-details {
+		border-top: 1px solid #e1e2db;
+		padding-top: 10px;
+	}
+
+	.payload-details summary {
+		width: fit-content;
+		color: #4f544a;
+		font-size: 13px;
+		font-weight: 800;
+		cursor: pointer;
+	}
+
+	.payload-details textarea {
+		margin-top: 10px;
 	}
 
 	.proposal-actions {
@@ -885,6 +1103,33 @@ import Layout from "../layouts/Layout.astro";
 
 	.proposal-actions input[name="reviewer_note"] {
 		max-width: 220px;
+	}
+
+	.schedule-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.schedule-edit {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: minmax(180px, 1fr) 154px 154px 130px 130px 108px 72px;
+		gap: 8px;
+		padding-top: 12px;
+		border-top: 1px solid #e1e2db;
+	}
+
+	.schedule-edit textarea {
+		grid-column: 1 / -1;
+	}
+
+	.schedule-row.is-editing {
+		border-color: #b9c6ad;
+		background: #fcfdf9;
+	}
+
+	.schedule-row.is-editing .schedule-time {
+		display: none;
 	}
 
 	.key-output {
@@ -919,6 +1164,7 @@ import Layout from "../layouts/Layout.astro";
 		.item-row,
 		.task-form + .item-list .item-row,
 		.schedule-row,
+		.schedule-edit,
 		.inline-form,
 		.task-form,
 		.schedule-form,
@@ -927,7 +1173,9 @@ import Layout from "../layouts/Layout.astro";
 		}
 
 		.item-main,
+		.schedule-summary,
 		.inline-form textarea,
+		.schedule-edit textarea,
 		.proposal-actions {
 			grid-column: 1 / -1;
 		}
@@ -943,6 +1191,7 @@ import Layout from "../layouts/Layout.astro";
 		.item-row,
 		.task-form + .item-list .item-row,
 		.schedule-row,
+		.schedule-edit,
 		.inline-form,
 		.task-form,
 		.schedule-form,
@@ -952,6 +1201,15 @@ import Layout from "../layouts/Layout.astro";
 		}
 
 		.top-actions {
+			justify-content: start;
+		}
+
+		.proposal-heading {
+			display: grid;
+			gap: 8px;
+		}
+
+		.schedule-actions {
 			justify-content: start;
 		}
 	}
