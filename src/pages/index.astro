@@ -1,79 +1,11 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import PortfolioGrid from "../components/PortfolioGrid.astro";
+import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 ---
 
-<Layout title="Yi Han">
-	<main class="home">
-		<section class="intro" aria-labelledby="page-title">
-			<img src="/hy_logo.svg" alt="" width="44" height="44" />
-			<p class="eyebrow">Yi Han</p>
-			<h1 id="page-title">Personal coordination desk</h1>
-			<p class="summary">
-				A private interface for project progress, GTD tasks, schedule blocks, and trusted agent proposals.
-			</p>
-			<a href="/dashboard">Open dashboard</a>
-		</section>
-	</main>
-</Layout>
-
-<style>
-	.home {
-		min-height: 100vh;
-		display: grid;
-		align-items: center;
-		padding: 48px 24px;
-	}
-
-	.intro {
-		width: min(680px, 100%);
-		margin: 0 auto;
-	}
-
-	.eyebrow {
-		margin: 24px 0 10px;
-		font-size: 13px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: #596052;
-	}
-
-	h1 {
-		margin: 0;
-		font-size: 48px;
-		line-height: 1;
-		font-weight: 760;
-		letter-spacing: 0;
-	}
-
-	.summary {
-		max-width: 560px;
-		margin: 18px 0 28px;
-		color: #5f6259;
-		font-size: 18px;
-		line-height: 1.6;
-	}
-
-	a {
-		display: inline-flex;
-		align-items: center;
-		min-height: 42px;
-		padding: 0 16px;
-		border: 1px solid #20211d;
-		border-radius: 6px;
-		background: #20211d;
-		color: #fff;
-		font-weight: 700;
-		text-decoration: none;
-	}
-
-	a:hover {
-		background: #36382f;
-	}
-
-	@media (max-width: 640px) {
-		h1 {
-			font-size: 38px;
-		}
-	}
-</style>
+<PortfolioLayout>
+	<section id="work" aria-labelledby="portfolio-title">
+		<h1 class="portfolio-heading" id="portfolio-title">Selected work</h1>
+		<PortfolioGrid />
+	</section>
+</PortfolioLayout>

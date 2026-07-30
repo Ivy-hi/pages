@@ -1,0 +1,84 @@
+---
+import type { ImageMetadata } from "astro";
+import { photos, portfolio } from "../data/portfolio";
+import { renderPortfolioPhoto } from "../lib/portfolio-images";
+import PhotoLightbox from "./PhotoLightbox.astro";
+
+const assets = import.meta.glob<{ default: ImageMetadata }>(
+	"../assets/photography/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG,WEBP,AVIF}",
+	{ eager: true },
+);
+
+const renderedPhotos = await Promise.all(
+	photos.map(async (photo) => {
+		const match = Object.entries(assets).find(([path]) => path.endsWith(`/${photo.file}`));
+		if (!match) return null;
+
+		return {
+			...photo,
+			...(await renderPortfolioPhoto(match[1].default)),
+		};
+	}),
+);
+const visiblePhotos = renderedPhotos.filter(
+	(photo): photo is NonNullable<typeof photo> => photo !== null,
+);
+
+const base = Astro.site?.href.replace(/\/$/, "") ?? "";
+const structuredData = {
+	"@context": "https://schema.org",
+	"@type": "ImageGallery",
+	name: `Selected work | ${portfolio.name}`,
+	url: `${base}/`,
+	author: {
+		"@type": "Person",
+		name: portfolio.name,
+	},
+	image: visiblePhotos.map((photo) => ({
+		"@type": "ImageObject",
+		contentUrl: `${base}${photo.full}`,
+		name: photo.caption || photo.alt,
+		description: photo.alt,
+		creator: {
+			"@type": "Person",
+			name: portfolio.name,
+		},
+	})),
+};
+---
+
+	<section class="portfolio-grid" aria-label="Selected photographs">
+	{
+		visiblePhotos.map((photo, index) => (
+			<figure
+				class="portfolio-figure"
+				style={`--photo-ratio: ${photo.width} / ${photo.height}; --photo-grow: ${photo.width / photo.height};`}
+			>
+				<button
+					class="portfolio-photo"
+					type="button"
+					aria-label={`${photo.alt}. View larger`}
+					data-full={photo.full}
+					data-alt={photo.alt}
+					data-caption={photo.caption}
+				>
+					<img
+						src={photo.src}
+						srcset={photo.srcset}
+						sizes="(min-width: 721px) calc(50vw - 190px), (min-width: 641px) calc(50vw - 36px), calc(100vw - 40px)"
+						alt={photo.alt}
+						width={photo.width}
+						height={photo.height}
+						loading={index < 4 ? "eager" : "lazy"}
+						decoding="async"
+						draggable="false"
+					/>
+				</button>
+				{photo.caption && <figcaption>{photo.caption}</figcaption>}
+			</figure>
+		))
+	}
+</section>
+
+<PhotoLightbox />
+<script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />

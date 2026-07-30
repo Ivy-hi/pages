@@ -1,0 +1,160 @@
+---
+import { ArrowLeft } from "@lucide/astro";
+import { Image } from "astro:assets";
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import { portfolio } from "../../data/portfolio";
+import PortfolioLayout from "../../layouts/PortfolioLayout.astro";
+
+export async function getStaticPaths() {
+	const entries = await getCollection("plog", ({ data }) => !data.draft);
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: CollectionEntry<"plog">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const formattedDate = new Intl.DateTimeFormat("en", {
+	year: "numeric",
+	month: "long",
+	day: "numeric",
+}).format(entry.data.pubDate);
+---
+
+<PortfolioLayout
+	title={`${entry.data.title} | ${portfolio.name}`}
+	description={entry.data.description}
+>
+	<article class="plog-post">
+		<a class="plog-back" href="/plog">
+			<ArrowLeft aria-hidden="true" size={17} stroke-width={1.5} />
+			<span>All entries</span>
+		</a>
+
+		<header class="plog-post__head">
+			<time datetime={entry.data.pubDate.toISOString()}>{formattedDate}</time>
+			<h1>{entry.data.title}</h1>
+			<p>{entry.data.description}</p>
+		</header>
+
+		<figure class="plog-post__cover">
+			<Image
+				src={entry.data.cover}
+				alt={entry.data.coverAlt}
+				width={1600}
+				format="webp"
+				quality={82}
+			/>
+		</figure>
+
+		<div class="plog-post__body">
+			<Content />
+		</div>
+	</article>
+</PortfolioLayout>
+
+<style>
+	.plog-post {
+		width: min(1120px, 100%);
+		margin: 0 auto;
+	}
+
+	.plog-back {
+		display: inline-flex;
+		margin-bottom: 2rem;
+		align-items: center;
+		gap: 0.45rem;
+		color: var(--portfolio-muted);
+		font-size: 15px;
+		text-decoration: none;
+	}
+
+	.plog-back:hover {
+		color: var(--portfolio-fg);
+	}
+
+	.plog-post__head {
+		width: min(760px, 100%);
+		margin: 0 auto 2rem;
+		text-align: center;
+	}
+
+	.plog-post__head time {
+		color: var(--portfolio-muted);
+		font-size: 14px;
+	}
+
+	.plog-post__head h1 {
+		margin: 0.55rem 0 0.8rem;
+		font-family: var(--portfolio-display);
+		font-size: 48px;
+		font-weight: 500;
+		line-height: 1.03;
+		letter-spacing: 0;
+	}
+
+	.plog-post__head p {
+		margin: 0 auto;
+		color: var(--portfolio-muted);
+		font-size: 19px;
+	}
+
+	.plog-post__cover {
+		margin: 0;
+		overflow: hidden;
+		aspect-ratio: 16 / 9;
+		border-radius: 2px;
+		background: var(--portfolio-surface);
+	}
+
+	.plog-post__cover :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.plog-post__body {
+		width: min(700px, 100%);
+		margin: 2.2rem auto 0;
+		font-size: 19px;
+	}
+
+	.plog-post__body :global(p) {
+		margin: 0 0 1.2rem;
+	}
+
+	.plog-post__body :global(a) {
+		text-underline-offset: 4px;
+	}
+
+	.plog-post__body :global(h2),
+	.plog-post__body :global(h3) {
+		margin: 2rem 0 0.8rem;
+		font-family: var(--portfolio-display);
+		font-weight: 500;
+		letter-spacing: 0;
+	}
+
+	@media (max-width: 760px) {
+		.plog-back {
+			margin-bottom: 1.4rem;
+		}
+
+		.plog-post__head {
+			text-align: left;
+		}
+
+		.plog-post__head h1 {
+			font-size: 38px;
+		}
+
+		.plog-post__cover {
+			aspect-ratio: 4 / 3;
+		}
+	}
+</style>

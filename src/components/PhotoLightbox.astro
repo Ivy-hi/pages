@@ -1,0 +1,116 @@
+---
+import { ChevronLeft, ChevronRight, X } from "@lucide/astro";
+---
+
+<div
+	class="photo-lightbox"
+	id="photo-lightbox"
+	role="dialog"
+	aria-modal="true"
+	aria-label="Photo viewer"
+	aria-hidden="true"
+>
+	<button class="photo-lightbox__close" type="button" aria-label="Close photo">
+		<X aria-hidden="true" size={26} stroke-width={1.5} />
+	</button>
+	<button
+		class="photo-lightbox__nav photo-lightbox__previous"
+		type="button"
+		aria-label="Previous photo"
+	>
+		<ChevronLeft aria-hidden="true" size={34} stroke-width={1.25} />
+	</button>
+	<figure class="photo-lightbox__figure">
+		<img class="photo-lightbox__image" alt="" draggable="false" />
+		<figcaption class="photo-lightbox__caption" hidden></figcaption>
+	</figure>
+	<button
+		class="photo-lightbox__nav photo-lightbox__next"
+		type="button"
+		aria-label="Next photo"
+	>
+		<ChevronRight aria-hidden="true" size={34} stroke-width={1.25} />
+	</button>
+</div>
+
+<script>
+	const lightbox = document.getElementById("photo-lightbox");
+	const tiles = Array.from(
+		document.querySelectorAll<HTMLButtonElement>(".portfolio-photo"),
+	);
+
+	if (lightbox && tiles.length > 0) {
+		const image = lightbox.querySelector<HTMLImageElement>(".photo-lightbox__image");
+		const caption = lightbox.querySelector<HTMLElement>(".photo-lightbox__caption");
+		const closeButton = lightbox.querySelector<HTMLButtonElement>(".photo-lightbox__close");
+		const previousButton = lightbox.querySelector<HTMLButtonElement>(
+			".photo-lightbox__previous",
+		);
+		const nextButton = lightbox.querySelector<HTMLButtonElement>(".photo-lightbox__next");
+		let activeIndex = 0;
+		let touchStartX = 0;
+
+		const render = (index: number) => {
+			if (!image || !caption) return;
+
+			activeIndex = (index + tiles.length) % tiles.length;
+			const tile = tiles[activeIndex];
+			const thumbnail = tile.querySelector<HTMLImageElement>("img");
+			const nextCaption = tile.dataset.caption ?? "";
+
+			image.alt = tile.dataset.alt ?? "";
+			image.src = thumbnail?.currentSrc || tile.dataset.full || "";
+			image.srcset = thumbnail?.srcset ?? "";
+			image.sizes = "100vw";
+			caption.textContent = nextCaption;
+			caption.hidden = nextCaption.length === 0;
+		};
+
+		const open = (index: number) => {
+			render(index);
+			lightbox.classList.add("is-open");
+			lightbox.setAttribute("aria-hidden", "false");
+			document.body.style.overflow = "hidden";
+			closeButton?.focus();
+		};
+
+		const close = () => {
+			lightbox.classList.remove("is-open");
+			lightbox.setAttribute("aria-hidden", "true");
+			document.body.style.overflow = "";
+			tiles[activeIndex]?.focus();
+		};
+
+		tiles.forEach((tile, index) => tile.addEventListener("click", () => open(index)));
+		closeButton?.addEventListener("click", close);
+		previousButton?.addEventListener("click", () => render(activeIndex - 1));
+		nextButton?.addEventListener("click", () => render(activeIndex + 1));
+
+		lightbox.addEventListener("click", (event) => {
+			if (event.target === lightbox) close();
+		});
+		lightbox.addEventListener(
+			"touchstart",
+			(event) => {
+				touchStartX = event.changedTouches[0]?.clientX ?? 0;
+			},
+			{ passive: true },
+		);
+		lightbox.addEventListener(
+			"touchend",
+			(event) => {
+				const distance = (event.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
+				if (Math.abs(distance) < 45) return;
+				render(activeIndex + (distance < 0 ? 1 : -1));
+			},
+			{ passive: true },
+		);
+
+		document.addEventListener("keydown", (event) => {
+			if (!lightbox.classList.contains("is-open")) return;
+			if (event.key === "Escape") close();
+			if (event.key === "ArrowLeft") render(activeIndex - 1);
+			if (event.key === "ArrowRight") render(activeIndex + 1);
+		});
+	}
+</script>

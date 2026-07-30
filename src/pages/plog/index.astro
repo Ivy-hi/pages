@@ -1,0 +1,165 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { portfolio } from "../../data/portfolio";
+import PortfolioLayout from "../../layouts/PortfolioLayout.astro";
+
+const entries = (await getCollection("plog", ({ data }) => !data.draft)).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const formatDate = (date: Date) =>
+	new Intl.DateTimeFormat("en", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	}).format(date);
+---
+
+<PortfolioLayout
+	title={`Plog | ${portfolio.name}`}
+	description="Photographs, sequences, and field notes by Yi Han."
+>
+	<header class="plog-head">
+		<p>Photo log</p>
+		<h1>Plog</h1>
+		<span>Photographs and notes, kept in sequence.</span>
+	</header>
+
+	<section class="plog-list" aria-label="Plog entries">
+		{
+			entries.map((entry) => (
+				<article class="plog-entry">
+					<a class="plog-entry__image" href={`/plog/${entry.id}/`} aria-label={`Read ${entry.data.title}`}>
+						<Image
+							src={entry.data.cover}
+							alt={entry.data.coverAlt}
+							width={1200}
+							format="webp"
+							quality={82}
+						/>
+					</a>
+					<div class="plog-entry__copy">
+						<time datetime={entry.data.pubDate.toISOString()}>{formatDate(entry.data.pubDate)}</time>
+						<h2>
+							<a href={`/plog/${entry.id}/`}>{entry.data.title}</a>
+						</h2>
+						<p>{entry.data.description}</p>
+						<a class="plog-entry__link" href={`/plog/${entry.id}/`}>Read note</a>
+					</div>
+				</article>
+			))
+		}
+	</section>
+</PortfolioLayout>
+
+<style>
+	.plog-head {
+		margin-bottom: 2rem;
+	}
+
+	.plog-head p,
+	.plog-head span {
+		margin: 0;
+		color: var(--portfolio-muted);
+		font-size: 15px;
+	}
+
+	.plog-head h1 {
+		margin: 0.2rem 0 0.4rem;
+		font-family: var(--portfolio-display);
+		font-size: 42px;
+		font-weight: 500;
+		line-height: 1;
+		letter-spacing: 0;
+	}
+
+	.plog-list {
+		border-top: 1px solid var(--portfolio-line);
+	}
+
+	.plog-entry {
+		display: grid;
+		grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.55fr);
+		gap: 2rem;
+		padding: 2rem 0;
+		border-bottom: 1px solid var(--portfolio-line);
+	}
+
+	.plog-entry__image {
+		display: block;
+		overflow: hidden;
+		aspect-ratio: 3 / 2;
+		border-radius: 2px;
+		background: var(--portfolio-surface);
+	}
+
+	.plog-entry__image :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 500ms ease;
+	}
+
+	.plog-entry__image:hover :global(img),
+	.plog-entry__image:focus-visible :global(img) {
+		transform: scale(1.018);
+	}
+
+	.plog-entry__copy {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.plog-entry time {
+		color: var(--portfolio-muted);
+		font-size: 14px;
+	}
+
+	.plog-entry h2 {
+		margin: 0.5rem 0 0.7rem;
+		font-family: var(--portfolio-display);
+		font-size: 30px;
+		font-weight: 500;
+		line-height: 1.08;
+		letter-spacing: 0;
+	}
+
+	.plog-entry h2 a {
+		text-decoration: none;
+	}
+
+	.plog-entry h2 a:hover {
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 5px;
+	}
+
+	.plog-entry p {
+		margin: 0;
+		color: var(--portfolio-muted);
+	}
+
+	.plog-entry__link {
+		margin-top: auto;
+		padding-top: 1.25rem;
+		text-underline-offset: 4px;
+	}
+
+	@media (max-width: 900px) {
+		.plog-entry {
+			grid-template-columns: 1fr;
+			gap: 1.2rem;
+		}
+
+		.plog-entry__link {
+			margin-top: 0;
+		}
+	}
+
+	@media (max-width: 760px) {
+		.plog-head h1 {
+			font-size: 36px;
+		}
+	}
+</style>
