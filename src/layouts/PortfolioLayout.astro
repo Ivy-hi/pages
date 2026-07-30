@@ -1,0 +1,66 @@
+---
+import "@fontsource/cormorant-garamond/latin-400.css";
+import "@fontsource/cormorant-garamond/latin-500.css";
+import "@fontsource/eb-garamond/latin-400.css";
+import "@fontsource/eb-garamond/latin-500.css";
+import "../styles/portfolio.css";
+
+import PortfolioSidebar from "../components/PortfolioSidebar.astro";
+import { portfolio } from "../data/portfolio";
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = portfolio.title,
+	description = portfolio.description,
+} = Astro.props;
+const canonical = Astro.site
+	? new URL(Astro.url.pathname, Astro.site).href
+	: undefined;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script is:inline>
+			try {
+				const savedTheme = localStorage.getItem("portfolio-theme");
+				const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+				document.documentElement.dataset.theme =
+					savedTheme || (prefersDark ? "dark" : "light");
+			} catch {}
+		</script>
+		<style is:inline>
+			body { margin: 0; }
+			.photo-lightbox { display: none; }
+		</style>
+		<meta name="description" content={description} />
+		<meta name="author" content={portfolio.name} />
+		<meta name="robots" content="index, follow, max-image-preview:large" />
+		<meta name="generator" content={Astro.generator} />
+		{canonical && <link rel="canonical" href={canonical} />}
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		{canonical && <meta property="og:url" content={canonical} />}
+		<meta name="twitter:card" content="summary_large_image" />
+		<link rel="icon" type="image/svg+xml" href="/hy_logo.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<PortfolioSidebar />
+		<main class="portfolio-main">
+			<slot />
+			<footer class="portfolio-footer">
+				<span>© {year} {portfolio.name}</span>
+			</footer>
+		</main>
+	</body>
+</html>

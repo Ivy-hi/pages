@@ -1,0 +1,88 @@
+---
+import { LayoutDashboard, Moon, Sun } from "@lucide/astro";
+import { portfolio } from "../data/portfolio";
+
+const normalizePath = (path: string) => path.replace(/\/+$/, "") || "/";
+const currentPath = normalizePath(Astro.url.pathname);
+const navigation = [
+	{ label: "Selected work", href: "/" },
+	{ label: "About me", href: "/about" },
+	{ label: "Plog", href: "/plog" },
+];
+const isActive = (href: string) => {
+	const normalizedHref = normalizePath(href);
+	return (
+		currentPath === normalizedHref ||
+		(normalizedHref !== "/" && currentPath.startsWith(`${normalizedHref}/`))
+	);
+};
+---
+
+<header class="portfolio-sidebar">
+	<div class="portfolio-sidebar__inner">
+		<a class="portfolio-brand" href="/" aria-label={`${portfolio.name}, home`}>
+			<img class="portfolio-brand__mark" src="/hy_logo.svg" alt="" width="38" height="66" />
+			<span>{portfolio.name}</span>
+		</a>
+
+		<nav class="portfolio-nav" aria-label="Portfolio">
+			<ul class="portfolio-nav__list">
+				{
+					navigation.map((item) => (
+						<li>
+							<a
+								href={item.href}
+								class:list={{ "is-active": isActive(item.href) }}
+								aria-current={isActive(item.href) ? "page" : undefined}
+							>
+								{item.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+
+		<div class="portfolio-tools">
+			<a
+				class="portfolio-icon-button"
+				href="/dashboard"
+				aria-label="Open dashboard"
+				data-tooltip="Dashboard"
+			>
+				<LayoutDashboard aria-hidden="true" size={19} stroke-width={1.6} />
+			</a>
+			<button
+				class="portfolio-icon-button theme-toggle"
+				type="button"
+				aria-label="Toggle color theme"
+				aria-pressed="false"
+				data-tooltip="Theme"
+			>
+				<Moon class="theme-toggle__moon" aria-hidden="true" size={19} stroke-width={1.6} />
+				<Sun class="theme-toggle__sun" aria-hidden="true" size={19} stroke-width={1.6} />
+			</button>
+		</div>
+	</div>
+</header>
+
+<script>
+	const themeToggle = document.querySelector<HTMLButtonElement>(".theme-toggle");
+
+	if (themeToggle) {
+		const root = document.documentElement;
+		const sync = () => {
+			themeToggle.setAttribute("aria-pressed", String(root.dataset.theme === "dark"));
+		};
+
+		sync();
+		themeToggle.addEventListener("click", () => {
+			const next = root.dataset.theme === "dark" ? "light" : "dark";
+			root.dataset.theme = next;
+			try {
+				localStorage.setItem("portfolio-theme", next);
+			} catch {}
+			sync();
+		});
+	}
+</script>

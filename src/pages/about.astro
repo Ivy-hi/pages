@@ -1,0 +1,124 @@
+---
+import { Image } from "astro:assets";
+import aboutImage from "../assets/photography/digital-04.jpg";
+import { portfolio } from "../data/portfolio";
+import PortfolioLayout from "../layouts/PortfolioLayout.astro";
+---
+
+<PortfolioLayout
+	title={`About me | ${portfolio.name}`}
+	description={`About ${portfolio.name} and the ideas behind the photographs.`}
+>
+	<article class="about-page">
+		<header class="about-head">
+			<p class="about-kicker">Behind the photographs</p>
+			<h1>About me</h1>
+		</header>
+
+		<figure class="about-image">
+			<Image
+				src={aboutImage}
+				alt="Pine trees fading into distant mist"
+				width={1600}
+				format="webp"
+				quality={82}
+			/>
+		</figure>
+
+		<div class="about-copy">
+			<p class="about-lede">
+				I am Yi Han, a photographer interested in the moments that sit between observation and memory.
+			</p>
+			<p>
+				My work moves through everyday landscapes, quiet structures, and the traces people leave behind.
+				Photography gives me a way to slow down, notice what changes, and return to what might otherwise
+				pass unnoticed.
+			</p>
+			<p>
+				This portfolio is an evolving record of those encounters: photographs gathered over time, along
+				with occasional notes about the places, processes, and ideas around them.
+			</p>
+		</div>
+	</article>
+</PortfolioLayout>
+
+<style>
+	.about-page {
+		width: min(1120px, 100%);
+		margin: 0 auto;
+	}
+
+	.about-head {
+		margin-bottom: 1.4rem;
+	}
+
+	.about-kicker {
+		margin: 0 0 0.35rem;
+		color: var(--portfolio-muted);
+		font-size: 15px;
+	}
+
+	h1 {
+		margin: 0;
+		font-family: var(--portfolio-display);
+		font-size: 42px;
+		font-weight: 500;
+		line-height: 1;
+		letter-spacing: 0;
+	}
+
+	.about-image {
+		margin: 0;
+		overflow: hidden;
+		aspect-ratio: 16 / 9;
+		border-radius: 2px;
+		background: var(--portfolio-surface);
+	}
+
+	.about-image :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.about-copy {
+		display: grid;
+		grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+		gap: 2.5rem 4rem;
+		width: min(900px, 100%);
+		margin: 2rem auto 0;
+	}
+
+	.about-copy p {
+		margin: 0;
+		color: var(--portfolio-muted);
+	}
+
+	.about-copy .about-lede {
+		grid-row: span 2;
+		color: var(--portfolio-fg);
+		font-family: var(--portfolio-display);
+		font-size: 29px;
+		line-height: 1.28;
+	}
+
+	@media (max-width: 760px) {
+		h1 {
+			font-size: 36px;
+		}
+
+		.about-image {
+			aspect-ratio: 4 / 3;
+		}
+
+		.about-copy {
+			grid-template-columns: 1fr;
+			gap: 1.2rem;
+		}
+
+		.about-copy .about-lede {
+			grid-row: auto;
+			font-size: 26px;
+		}
+	}
+</style>
