@@ -2,8 +2,8 @@
 title: Beginning a photo log
 description: A place for photographs and the notes that stay with them.
 pubDate: 2026-07-30
-cover: ../../assets/photography/digital-03.jpg
-coverAlt: An old harbor seen across still water
+cover: ../../assets/photography/P1022528.jpg
+coverAlt: A quiet shoreline beneath a violet blue-hour sky
 draft: false
 ---
 

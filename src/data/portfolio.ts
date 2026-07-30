@@ -24,17 +24,83 @@ export const photos: PortfolioPhoto[] = [
 		caption: "Old and new",
 	},
 	{
-		file: "digital-03.jpg",
-		alt: "An old harbor seen across still water",
-		caption: "Old harbor",
+		file: "P1022528.jpg",
+		alt: "A quiet shoreline beneath a violet blue-hour sky",
+		caption: "Blue hour shore",
 	},
 	{
-		file: "digital-04.jpg",
-		alt: "Pine trees fading into distant mist",
-		caption: "Pine forest",
+		file: "P1123453.jpg",
+		alt: "A snow-covered island reflected in a still winter lake",
+		caption: "Winter stillness",
 	},
-	{ file: "digital-05.jpg", alt: "A minimal landscape study" },
-	{ file: "digital-06.jpg", alt: "A quiet study of light and distance" },
-	{ file: "digital-07.jpg", alt: "A muted landscape composition" },
-	{ file: "digital-08.jpg", alt: "A study in atmosphere and form" },
+	{
+		file: "P1134573-2.jpg",
+		alt: "Small orange mushrooms emerging among leaves on the forest floor",
+		caption: "Forest floor",
+	},
+	{
+		file: "P1134602.jpg",
+		alt: "Tiny green plants rising from a dense bed of moss",
+		caption: "Moss garden",
+	},
+	{
+		file: "P1145806-Pano.jpg",
+		alt: "A turquoise mountain lake and small island beneath low clouds",
+		caption: "Lake in cloud",
+	},
+	{
+		file: "P1156352.jpg",
+		alt: "A winding road crossing patchwork fields on a highland slope",
+		caption: "Road through the hills",
+	},
+	{
+		file: "P1156555.jpg",
+		alt: "A flock of sheep grazing across a green highland meadow",
+		caption: "Highland flock",
+	},
+	{
+		file: "P1167407.jpg",
+		alt: "A solitary road cutting through a wide and barren mountain plateau",
+		caption: "Across the plateau",
+	},
+	{
+		file: "P1167595-2.jpg",
+		alt: "Jagged mountain peaks rising beyond the blue edge of a lake",
+		caption: "Edge of the mountains",
+	},
+	{
+		file: "P1178374.jpg",
+		alt: "Two grazing antelope on open grassland beside a deep blue lake",
+		caption: "Open grassland",
+	},
+	{
+		file: "P1178691.jpg",
+		alt: "A red train crossing an open plain beneath dramatic mountain clouds",
+		caption: "Across the plain",
+	},
+	{
+		file: "P1212010.jpg",
+		alt: "A small souvenir stall with a handwritten Chinese storage sign",
+		caption: "At the stall",
+	},
+	{
+		file: "P1212031.jpg",
+		alt: "People climbing broad stone steps from a sandy shoreline",
+		caption: "Steps from the sea",
+	},
+	{
+		file: "P1212097-2.jpg",
+		alt: "Small fishing boats scattered across a calm blue sea",
+		caption: "Offshore",
+	},
+	{
+		file: "P1212170.jpg",
+		alt: "A sunlit tree-lined avenue glowing with autumn leaves",
+		caption: "Autumn light",
+	},
+	{
+		file: "P1299804.jpg",
+		alt: "A weathered arrangement of switches and electrical boxes on brick",
+		caption: "Old circuits",
+	},
 ];
