@@ -103,4 +103,9 @@ export const photos: PortfolioPhoto[] = [
 		alt: "A weathered arrangement of switches and electrical boxes on brick",
 		caption: "Old circuits",
 	},
+	{
+		file: "street-doorway.jpg",
+		alt: "A weathered tiled doorway with metal mailboxes, exposed wires, and a red door-god poster",
+		caption: "At the doorway",
+	},
 ];
