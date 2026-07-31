@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import aboutImage from "../assets/photography/P1212170.jpg";
+import aboutImage from "../assets/photography/aboutme.png";
 import { portfolio } from "../data/portfolio";
 import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 ---
@@ -18,8 +18,8 @@ import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 		<figure class="about-image">
 			<Image
 				src={aboutImage}
-				alt="A sunlit tree-lined avenue glowing with autumn leaves"
-				width={1600}
+				alt="A football player striking the ball on an outdoor pitch"
+				width={1536}
 				format="webp"
 				quality={82}
 			/>
@@ -70,7 +70,7 @@ import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 	.about-image {
 		margin: 0;
 		overflow: hidden;
-		aspect-ratio: 16 / 9;
+		aspect-ratio: 3 / 2;
 		border-radius: 2px;
 		background: var(--portfolio-surface);
 	}
@@ -105,10 +105,6 @@ import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 	@media (max-width: 760px) {
 		h1 {
 			font-size: 36px;
-		}
-
-		.about-image {
-			aspect-ratio: 4 / 3;
 		}
 
 		.about-copy {
