@@ -7,6 +7,8 @@
     "build": "astro build && node scripts/strip-unreferenced-assets.mjs",
     "preview": "astro preview",
     "astro": "astro",
+    "photo:publish": "node scripts/publish-photo.mjs",
+    "photo:release": "node scripts/publish-photo.mjs --release-only",
     "pages:dev": "wrangler pages dev dist",
     "d1:apply:local": "wrangler d1 migrations apply agent-scheduler --local",
     "d1:apply:remote": "wrangler d1 migrations apply agent-scheduler --remote",

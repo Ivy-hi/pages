@@ -1,3 +1,5 @@
+import photosData from "./photos.json";
+
 export interface PortfolioPhoto {
 	file: string;
 	alt: string;
@@ -10,102 +12,5 @@ export const portfolio = {
 	description: "Selected photographs and visual notes by Yi Han.",
 };
 
-// Replace these files and descriptions with your own work. The order here is
-// the order shown on the homepage.
-export const photos: PortfolioPhoto[] = [
-	{
-		file: "digital-01.jpg",
-		alt: "A dense riverside city skyline glowing in late-afternoon light",
-		caption: "City at dusk",
-	},
-	{
-		file: "digital-02.jpg",
-		alt: "A gold-toned high-rise rising behind weathered residential buildings",
-		caption: "Old and new",
-	},
-	{
-		file: "P1022528.jpg",
-		alt: "A quiet shoreline beneath a violet blue-hour sky",
-		caption: "Blue hour shore",
-	},
-	{
-		file: "P1123453.jpg",
-		alt: "A snow-covered island reflected in a still winter lake",
-		caption: "Winter stillness",
-	},
-	{
-		file: "P1134573-2.jpg",
-		alt: "Small orange mushrooms emerging among leaves on the forest floor",
-		caption: "Forest floor",
-	},
-	{
-		file: "P1134602.jpg",
-		alt: "Tiny green plants rising from a dense bed of moss",
-		caption: "Moss garden",
-	},
-	{
-		file: "P1145806-Pano.jpg",
-		alt: "A turquoise mountain lake and small island beneath low clouds",
-		caption: "Lake in cloud",
-	},
-	{
-		file: "P1156352.jpg",
-		alt: "A winding road crossing patchwork fields on a highland slope",
-		caption: "Road through the hills",
-	},
-	{
-		file: "P1156555.jpg",
-		alt: "A flock of sheep grazing across a green highland meadow",
-		caption: "Highland flock",
-	},
-	{
-		file: "P1167407.jpg",
-		alt: "A solitary road cutting through a wide and barren mountain plateau",
-		caption: "Across the plateau",
-	},
-	{
-		file: "P1167595-2.jpg",
-		alt: "Jagged mountain peaks rising beyond the blue edge of a lake",
-		caption: "Edge of the mountains",
-	},
-	{
-		file: "P1178374.jpg",
-		alt: "Two grazing antelope on open grassland beside a deep blue lake",
-		caption: "Open grassland",
-	},
-	{
-		file: "P1178691.jpg",
-		alt: "A red train crossing an open plain beneath dramatic mountain clouds",
-		caption: "Across the plain",
-	},
-	{
-		file: "P1212010.jpg",
-		alt: "A small souvenir stall with a handwritten Chinese storage sign",
-		caption: "At the stall",
-	},
-	{
-		file: "P1212031.jpg",
-		alt: "People climbing broad stone steps from a sandy shoreline",
-		caption: "Steps from the sea",
-	},
-	{
-		file: "P1212097-2.jpg",
-		alt: "Small fishing boats scattered across a calm blue sea",
-		caption: "Offshore",
-	},
-	{
-		file: "P1212170.jpg",
-		alt: "A sunlit tree-lined avenue glowing with autumn leaves",
-		caption: "Autumn light",
-	},
-	{
-		file: "P1299804.jpg",
-		alt: "A weathered arrangement of switches and electrical boxes on brick",
-		caption: "Old circuits",
-	},
-	{
-		file: "street-doorway.jpg",
-		alt: "A weathered tiled doorway with metal mailboxes, exposed wires, and a red door-god poster",
-		caption: "At the doorway",
-	},
-];
+// The order in photos.json is the order shown on the homepage.
+export const photos: PortfolioPhoto[] = photosData;

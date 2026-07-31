@@ -83,3 +83,36 @@ Supported proposal types are `task`, `calendar_block`, and `project_update`.
 npm test
 npm run build
 ```
+
+## Photo Publishing
+
+On macOS, double-click `publish-photo.command`, choose a photograph, and enter
+its caption and visual description. The publisher will:
+
+1. resize the longest edge to 3200 px without upscaling;
+2. save an optimized JPEG at quality 82;
+3. append the photo to `src/data/photos.json`;
+4. run the production build and tests;
+5. commit and push `local`;
+6. merge through a temporary worktree and push `main`;
+7. wait until the photograph appears on `https://www.hanyi.life`.
+
+The same workflow is available in Terminal:
+
+```sh
+npm run photo:publish -- "/path/to/photo.jpg"
+```
+
+For agent or non-interactive use:
+
+```sh
+npm run photo:publish -- "/path/to/photo.jpg" \
+  --caption "At the doorway" \
+  --alt "A weathered tiled doorway in an old neighborhood" \
+  --yes
+```
+
+Use `--prepare-only` to update, verify, and commit the site locally without
+publishing. Run `npm run photo:release` when that local commit is ready, or use
+the same command to retry after a GitHub or Cloudflare failure. The publisher
+ignores untracked files, but stops if tracked files already have changes.
