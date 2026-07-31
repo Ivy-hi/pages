@@ -98,5 +98,10 @@
     "file": "leaf.jpg",
     "alt": "Leaf",
     "caption": "Leaf"
+  },
+  {
+    "file": "growth-ring.jpg",
+    "alt": "growth ring",
+    "caption": "growth ring"
   }
 ]
