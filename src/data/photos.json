@@ -93,5 +93,10 @@
     "file": "street-doorway.jpg",
     "alt": "A weathered tiled doorway with metal mailboxes, exposed wires, and a red door-god poster",
     "caption": "At the doorway"
+  },
+  {
+    "file": "leaf.jpg",
+    "alt": "Leaf",
+    "caption": "Leaf"
   }
 ]
