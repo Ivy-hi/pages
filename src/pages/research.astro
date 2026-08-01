@@ -1,20 +1,11 @@
 ---
 import { portfolio } from "../data/portfolio";
-import {
-	publications,
-	researchAreas,
-	researchProfile,
-	researchProjects,
-	researchSkills,
-} from "../data/research";
+import { researchAreas, researchProfile } from "../data/research";
 import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 
 const pageSections = [
 	{ label: "Overview", href: "#overview" },
 	{ label: "Areas", href: "#areas" },
-	{ label: "Projects", href: "#projects" },
-	{ label: "Publications", href: "#publications" },
-	{ label: "Skills", href: "#skills" },
 	{ label: "Contact", href: "#contact" },
 ];
 ---
@@ -100,98 +91,6 @@ const pageSections = [
 								</div>
 							</div>
 						</article>
-					))
-				}
-			</div>
-		</section>
-
-		<section class="research-section" id="projects" aria-labelledby="projects-title">
-			<header class="research-section__heading research-section__heading--compact">
-				<p>Applied work</p>
-				<h2 id="projects-title">Projects</h2>
-			</header>
-
-			<div class="research-project-list">
-				{
-					researchProjects.map((project) => (
-						<article class="research-project" id={project.id}>
-							<header class="research-project__head">
-								<h3>{project.title}</h3>
-								<dl class="research-meta">
-									<div>
-										<dt>{project.metaLabel}</dt>
-										<dd>{project.metaValue}</dd>
-									</div>
-									{project.dates && (
-										<div>
-											<dt>Dates</dt>
-											<dd>{project.dates}</dd>
-										</div>
-									)}
-								</dl>
-							</header>
-
-							<div class="research-project__body">
-								<div class="research-prose">
-									{project.description.map((paragraph) => <p>{paragraph}</p>)}
-								</div>
-								<h4>Contributions</h4>
-								<ul class="research-bullets">
-									{project.contributions.map((contribution) => <li>{contribution}</li>)}
-								</ul>
-								{project.extraLabel && project.extraItems && (
-									<>
-										<h4>{project.extraLabel}</h4>
-										<ul class="research-bullets research-bullets--compact">
-											{project.extraItems.map((item) => <li>{item}</li>)}
-										</ul>
-									</>
-								)}
-								{project.closing && <p class="research-closing">{project.closing}</p>}
-								<ul class="research-keywords" aria-label={`${project.title} keywords`}>
-									{project.keywords.map((keyword) => <li>{keyword}</li>)}
-								</ul>
-							</div>
-						</article>
-					))
-				}
-			</div>
-		</section>
-
-		<section class="research-section" id="publications" aria-labelledby="publications-title">
-			<header class="research-section__heading research-section__heading--compact">
-				<p>Research output</p>
-				<h2 id="publications-title">Selected Publications &amp; Presentations</h2>
-			</header>
-
-			<ol class="publication-list">
-				{
-					publications.map((publication) => (
-						<li>
-							<p class="publication-authors">{publication.authors}</p>
-							<h3>{publication.title}</h3>
-							<p class="publication-status">{publication.status}</p>
-						</li>
-					))
-				}
-			</ol>
-		</section>
-
-		<section class="research-section" id="skills" aria-labelledby="skills-title">
-			<header class="research-section__heading research-section__heading--compact">
-				<p>Methods</p>
-				<h2 id="skills-title">Skills</h2>
-			</header>
-
-			<div class="research-skills">
-				{
-					researchSkills.map((group) => (
-						<section aria-labelledby={`skills-${group.title.toLowerCase().replaceAll(" ", "-")}`}>
-							<h3 id={`skills-${group.title.toLowerCase().replaceAll(" ", "-")}`}>{group.title}</h3>
-							<ul>
-								{group.items.map((item) => <li>{item}</li>)}
-							</ul>
-						</section>
 					))
 				}
 			</div>
@@ -381,8 +280,7 @@ const pageSections = [
 		font-size: 14px;
 	}
 
-	.research-area-list,
-	.research-project-list {
+	.research-area-list {
 		border-bottom: 1px solid var(--portfolio-line);
 	}
 
@@ -394,8 +292,7 @@ const pageSections = [
 		border-bottom: 1px solid var(--portfolio-line);
 	}
 
-	.research-area:last-child,
-	.research-project:last-child {
+	.research-area:last-child {
 		border-bottom: 0;
 	}
 
@@ -406,8 +303,7 @@ const pageSections = [
 		line-height: 1;
 	}
 
-	.research-area__content,
-	.research-project {
+	.research-area__content {
 		display: grid;
 		grid-template-columns: minmax(220px, 0.76fr) minmax(0, 1.24fr);
 		gap: 2rem 3.5rem;
@@ -421,18 +317,14 @@ const pageSections = [
 		text-transform: uppercase;
 	}
 
-	.research-area h3,
-	.research-project h3,
-	.publication-list h3,
-	.research-skills h3 {
+	.research-area h3 {
 		margin: 0;
 		font-family: var(--portfolio-display);
 		font-weight: 500;
 		letter-spacing: 0;
 	}
 
-	.research-area h3,
-	.research-project h3 {
+	.research-area h3 {
 		font-size: 28px;
 		line-height: 1.12;
 	}
@@ -461,13 +353,11 @@ const pageSections = [
 		text-transform: uppercase;
 	}
 
-	.research-area__body,
-	.research-project__body {
+	.research-area__body {
 		min-width: 0;
 	}
 
-	.research-area__body h4,
-	.research-project__body h4 {
+	.research-area__body h4 {
 		margin: 1.35rem 0 0.45rem;
 		font-size: 14px;
 		font-weight: 500;
@@ -495,98 +385,12 @@ const pageSections = [
 		content: "·";
 	}
 
-	.research-bullets--compact {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		column-gap: 1.5rem;
-	}
-
 	.research-closing {
 		margin-top: 1rem;
 	}
 
 	.research-keywords {
 		margin-top: 1.25rem;
-	}
-
-	.research-project {
-		padding: 2.4rem 0;
-		border-bottom: 1px solid var(--portfolio-line);
-	}
-
-	.publication-list {
-		margin: 0;
-		padding: 0;
-		border-bottom: 1px solid var(--portfolio-line);
-		list-style: none;
-		counter-reset: publication;
-	}
-
-	.publication-list li {
-		position: relative;
-		padding: 1.65rem 0 1.65rem 3.25rem;
-		border-bottom: 1px solid var(--portfolio-line);
-		counter-increment: publication;
-	}
-
-	.publication-list li:last-child {
-		border-bottom: 0;
-	}
-
-	.publication-list li::before {
-		position: absolute;
-		top: 1.85rem;
-		left: 0;
-		color: var(--portfolio-muted);
-		content: "0" counter(publication);
-		font-size: 14px;
-	}
-
-	.publication-authors,
-	.publication-status {
-		margin: 0;
-		color: var(--portfolio-muted);
-		font-size: 15px;
-	}
-
-	.publication-list h3 {
-		max-width: 850px;
-		margin: 0.35rem 0;
-		font-size: 25px;
-		line-height: 1.17;
-	}
-
-	.research-skills {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		border-bottom: 1px solid var(--portfolio-line);
-	}
-
-	.research-skills section {
-		padding: 1.8rem 2rem 1.8rem 0;
-	}
-
-	.research-skills section + section {
-		padding-right: 0;
-		padding-left: 2rem;
-		border-left: 1px solid var(--portfolio-line);
-	}
-
-	.research-skills h3 {
-		font-size: 24px;
-	}
-
-	.research-skills ul {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		margin: 1rem 0 0;
-		padding: 0;
-		gap: 0.35rem 1.5rem;
-		list-style: none;
-	}
-
-	.research-skills li {
-		color: var(--portfolio-muted);
-		font-size: 16px;
 	}
 
 	.research-contact {
@@ -619,14 +423,12 @@ const pageSections = [
 	}
 
 	@media (max-width: 980px) {
-		.research-area__content,
-		.research-project {
+		.research-area__content {
 			grid-template-columns: 1fr;
 			gap: 1.35rem;
 		}
 
-		.research-area__head,
-		.research-project__head {
+		.research-area__head {
 			max-width: 720px;
 		}
 	}
@@ -672,25 +474,8 @@ const pageSections = [
 			padding: 2rem 0;
 		}
 
-		.research-area h3,
-		.research-project h3 {
+		.research-area h3 {
 			font-size: 25px;
-		}
-
-		.research-bullets--compact,
-		.research-skills,
-		.research-skills ul {
-			grid-template-columns: 1fr;
-		}
-
-		.research-skills section,
-		.research-skills section + section {
-			padding: 1.5rem 0;
-			border-left: 0;
-		}
-
-		.research-skills section + section {
-			border-top: 1px solid var(--portfolio-line);
 		}
 	}
 
@@ -705,10 +490,6 @@ const pageSections = [
 
 		.research-area__index {
 			font-size: 19px;
-		}
-
-		.publication-list li {
-			padding-left: 2.25rem;
 		}
 	}
 </style>

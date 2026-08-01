@@ -11,26 +11,6 @@ export interface ResearchArea {
 	keywords: string[];
 }
 
-export interface ResearchProject {
-	id: string;
-	title: string;
-	metaLabel: string;
-	metaValue: string;
-	dates?: string;
-	description: string[];
-	contributions: string[];
-	extraLabel?: string;
-	extraItems?: string[];
-	closing?: string;
-	keywords: string[];
-}
-
-export interface ResearchPublication {
-	authors: string;
-	title: string;
-	status: string;
-}
-
 export const researchProfile = {
 	name: "Yi Han",
 	role: "Ph.D. Candidate in Control Science and Systems Engineering",
@@ -46,7 +26,7 @@ export const researchProfile = {
 		"Mechanism Design",
 	],
 	introduction: [
-		"I am a Ph.D. candidate in Control Science and Systems Engineering at Peking University, advised by Prof. Wenjun Mei.",
+		"Advised by Prof. Wenjun Mei.",
 	],
 	researchTheme: "Modeling and Analysis of Multi-Agent Systems",
 	overview: [
@@ -165,114 +145,6 @@ export const researchAreas: ResearchArea[] = [
 			"Decision theory",
 			"Preference learning",
 			"Optimization",
-		],
-	},
-];
-
-export const researchProjects: ResearchProject[] = [
-	{
-		id: "relationship-networks",
-		title: "Complex Relationship Networks: Resource Allocation Games and Dynamic Evolution",
-		metaLabel: "Project type",
-		metaValue: "Collaborative Research Project",
-		dates: "2023-2025",
-		description: [
-			"This project studies resource allocation and dynamic decision-making in complex relationship networks. We constructed signed interaction networks from real-world event data and developed models combining network science, dynamical systems, and game theory.",
-		],
-		contributions: [
-			"Developing node state and security-index measurement methods",
-			"Modeling dynamic resource evolution",
-			"Analyzing how network topology and centrality influence system evolution",
-			"Conducting simulations and prediction experiments based on time-varying relationship networks",
-		],
-		keywords: [
-			"Complex networks",
-			"Signed networks",
-			"Dynamic games",
-			"Network evolution",
-			"Data-driven modeling",
-		],
-	},
-	{
-		id: "momoai",
-		title: "momoai: Agent Service Marketplace and Evaluation Platform",
-		metaLabel: "Role",
-		metaValue: "Product Design & Benchmark Framework Development",
-		description: [
-			"momoai is an early-stage AI application startup project aiming to build a marketplace for AI agent services. The project explores how agent capabilities can be standardized, evaluated, and exchanged through a trusted service ecosystem.",
-		],
-		contributions: [
-			"Product architecture and business model design",
-			"Writing the initial business plan",
-			"Designing workflows for agent service discovery, matching, evaluation, delivery, and feedback",
-			"Developing an evaluation benchmark framework for agent capabilities",
-		],
-		extraLabel: "Benchmark dimensions",
-		extraItems: [
-			"Performance and stability",
-			"Output consistency",
-			"Cost efficiency",
-			"Reproducibility and version tracking",
-		],
-		closing:
-			"The platform has completed early-stage transaction validation and accumulated more than 200 active users.",
-		keywords: [
-			"AI agents",
-			"Benchmarking",
-			"AI product design",
-			"Evaluation systems",
-			"Marketplace mechanisms",
-		],
-	},
-];
-
-export const publications: ResearchPublication[] = [
-	{
-		authors: "Yi Han, Julien M. Hendrickx, Ge Chen, Wenjun Mei",
-		title: "Modeling and Analysis of Continuous-Time Weighted-Median Opinion Dynamics",
-		status: "Submitted to IEEE Transactions on Automatic Control.",
-	},
-	{
-		authors: "Yi Han, Boyu Zhang, Wenjun Mei",
-		title: "The Cost α-Fairness Model: A Unified Framework for Fairness in Cost Allocation",
-		status: "Submitted to Operations Research Letters.",
-	},
-	{
-		authors: "Yi Han, Wenjun Mei",
-		title:
-			"Balancing Sustainability and Output in Renewable-Resource Differential Games via a Fairness-Competition Lever",
-		status: "To be presented at the 23rd IFAC World Congress, Busan, Republic of Korea, 2026.",
-	},
-	{
-		authors: "Yi Han, Wenjun Mei",
-		title: "How to Build a “Straight Ruler” That Measures Allocation Fairness?",
-		status: "Workshop Presentation, IEEE CDC 2025, Rio de Janeiro, Brazil.",
-	},
-];
-
-export const researchSkills = [
-	{
-		title: "Mathematical Methods",
-		items: [
-			"Multi-Agent Systems",
-			"Nonlinear Dynamical Systems",
-			"Consensus and Network Dynamics",
-			"Game Theory",
-			"Differential Games",
-			"Optimization Theory",
-			"Convex Analysis",
-			"Mechanism Design",
-		],
-	},
-	{
-		title: "Technical Tools",
-		items: [
-			"Python",
-			"MATLAB",
-			"LaTeX",
-			"Numerical Simulation",
-			"Network Analysis",
-			"Data-driven Modeling",
 		],
 	},
 ];
