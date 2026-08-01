@@ -33,7 +33,7 @@ html {
 }
 
 body {
-	min-width: 320px;
+	min-width: 0;
 	background: var(--portfolio-bg);
 	color: var(--portfolio-fg);
 	font-family: var(--portfolio-body);
@@ -446,8 +446,9 @@ svg {
 
 	.portfolio-nav__list {
 		flex-direction: row;
+		flex-wrap: wrap;
 		justify-content: center;
-		gap: 1.35rem;
+		gap: 0.45rem 1.35rem;
 	}
 
 	.portfolio-nav a {
@@ -471,6 +472,16 @@ svg {
 
 	.portfolio-footer::before {
 		left: var(--portfolio-pad);
+	}
+}
+
+@media (max-width: 420px) {
+	.portfolio-nav__list {
+		gap: 0.35rem 1rem;
+	}
+
+	.portfolio-nav a {
+		font-size: 16px;
 	}
 }
 
