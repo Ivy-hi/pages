@@ -33,7 +33,8 @@ let removedFiles = 0;
 let removedBytes = 0;
 
 for (const image of files.filter((candidate) => imagePattern.test(candidate))) {
-	if (references.includes(basename(image))) continue;
+	const imageName = basename(image);
+	if (references.includes(imageName) || references.includes(encodeURI(imageName))) continue;
 
 	removedBytes += (await stat(image)).size;
 	await rm(image);
