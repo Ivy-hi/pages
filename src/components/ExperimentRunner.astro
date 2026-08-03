@@ -1,0 +1,613 @@
+---
+import instruction1 from "../../exp/Instruction/幻灯片1.jpeg?url";
+import instruction2 from "../../exp/Instruction/幻灯片2.jpeg?url";
+import instruction5 from "../../exp/Instruction/幻灯片5.jpeg?url";
+import instruction9 from "../../exp/Instruction/幻灯片9.jpeg?url";
+import instruction10 from "../../exp/Instruction/幻灯片10.jpeg?url";
+import instruction11 from "../../exp/Instruction/幻灯片11.jpeg?url";
+import instruction12 from "../../exp/Instruction/幻灯片12.jpeg?url";
+import instruction13 from "../../exp/Instruction/幻灯片13.jpeg?url";
+import instruction14 from "../../exp/Instruction/幻灯片14.jpeg?url";
+import instruction15 from "../../exp/Instruction/幻灯片15.jpeg?url";
+import instruction16 from "../../exp/Instruction/幻灯片16.jpeg?url";
+import instruction18 from "../../exp/Instruction/幻灯片18.jpeg?url";
+import instruction19 from "../../exp/Instruction/幻灯片19.jpeg?url";
+import instruction20 from "../../exp/Instruction/幻灯片20.jpeg?url";
+import instruction21 from "../../exp/Instruction/幻灯片21.jpeg?url";
+import instruction22 from "../../exp/Instruction/幻灯片22.jpeg?url";
+import instruction23 from "../../exp/Instruction/幻灯片23.jpeg?url";
+import instruction24 from "../../exp/Instruction/幻灯片24.jpeg?url";
+import instruction25 from "../../exp/Instruction/幻灯片25.jpeg?url";
+import instruction26 from "../../exp/Instruction/幻灯片26.jpeg?url";
+import instruction27 from "../../exp/Instruction/幻灯片27.jpeg?url";
+import instruction28 from "../../exp/Instruction/幻灯片28.jpeg?url";
+import instruction29 from "../../exp/Instruction/幻灯片29.jpeg?url";
+import instruction30 from "../../exp/Instruction/幻灯片30.jpeg?url";
+import instruction31 from "../../exp/Instruction/幻灯片31.jpeg?url";
+
+import question01 from "../../exp/flower_round/Q0001_IdxQ405001_flower_round.png?url";
+import question02 from "../../exp/flower_round/Q0002_IdxQ405002_flower_round.png?url";
+import question03 from "../../exp/flower_round/Q0003_IdxQ405003_flower_round.png?url";
+import question04 from "../../exp/flower_round/Q0004_IdxQ405004_flower_round.png?url";
+import question05 from "../../exp/flower_round/Q0005_IdxQ405005_flower_round.png?url";
+import question06 from "../../exp/flower_round/Q0006_IdxQ405006_flower_round.png?url";
+import question07 from "../../exp/flower_round/Q0007_IdxQ405007_flower_round.png?url";
+import question08 from "../../exp/flower_round/Q0008_IdxQ405008_flower_round.png?url";
+import question09 from "../../exp/flower_round/Q0009_IdxQ405009_flower_round.png?url";
+import question10 from "../../exp/flower_round/Q0010_IdxQ405010_flower_round.png?url";
+import question11 from "../../exp/flower_round/Q0011_IdxQ405011_flower_round.png?url";
+import question12 from "../../exp/flower_round/Q0012_IdxQ405012_flower_round.png?url";
+import question13 from "../../exp/flower_round/Q0013_IdxQ405013_flower_round.png?url";
+import question14 from "../../exp/flower_round/Q0014_IdxQ405014_flower_round.png?url";
+import question15 from "../../exp/flower_round/Q0015_IdxQ405015_flower_round.png?url";
+
+const instructionAssets = {
+	"instruction-1": instruction1,
+	"instruction-2": instruction2,
+	"instruction-5": instruction5,
+	"instruction-9": instruction9,
+	"instruction-10": instruction10,
+	"instruction-11": instruction11,
+	"instruction-12": instruction12,
+	"instruction-13": instruction13,
+	"instruction-14": instruction14,
+	"instruction-15": instruction15,
+	"instruction-16": instruction16,
+	"instruction-18": instruction18,
+	"instruction-19": instruction19,
+	"instruction-20": instruction20,
+	"instruction-21": instruction21,
+	"instruction-22": instruction22,
+	"instruction-23": instruction23,
+	"instruction-24": instruction24,
+	"instruction-25": instruction25,
+	"instruction-26": instruction26,
+	"instruction-27": instruction27,
+	"instruction-28": instruction28,
+	"instruction-29": instruction29,
+	"instruction-30": instruction30,
+	"instruction-31": instruction31,
+};
+
+const questionAssets = [
+	question01,
+	question02,
+	question03,
+	question04,
+	question05,
+	question06,
+	question07,
+	question08,
+	question09,
+	question10,
+	question11,
+	question12,
+	question13,
+	question14,
+	question15,
+];
+
+const assets = Object.fromEntries([
+	...Object.entries(instructionAssets).map(([key, src]) => [
+		key,
+		{ src, width: 2880, height: 2160 },
+	]),
+	...questionAssets.map((src, index) => [
+		`question-${String(index + 1).padStart(2, "0")}`,
+		{ src, width: 3270, height: 1620 },
+	]),
+]);
+
+const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
+---
+
+<main class="experiment" data-experiment-root>
+	<section class="device-warning" aria-labelledby="device-warning-title">
+		<div class="device-warning__panel">
+			<h1 id="device-warning-title">请使用电脑打开实验</h1>
+			<p>此预览需要至少 900 × 600 的浏览器窗口，以保持实验材料和点击区域准确。</p>
+		</div>
+	</section>
+
+	<section class="experiment-shell" data-experiment-shell aria-label="Behavioral experiment preview">
+		<p class="load-status" data-load-status role="status">Loading stimulus…</p>
+
+		<div class="stimulus-frame" data-stage hidden aria-busy="true">
+			<img data-stimulus alt="" draggable="false" decoding="async" />
+			<div class="hotspot-layer" data-hotspots></div>
+		</div>
+
+		<div class="load-error" data-load-error hidden role="alert">
+			<p>The experiment image could not be loaded.</p>
+			<button type="button" data-retry>Retry</button>
+		</div>
+	</section>
+
+	<section class="results" data-results hidden aria-labelledby="results-title">
+		<div class="results__panel">
+			<p class="results__eyebrow">Behavioral experiment preview</p>
+			<h1 id="results-title">选择记录</h1>
+			<p class="results__note">记录只保留在当前页面内；刷新页面后会清空。</p>
+			<div class="results__counts" data-result-counts></div>
+			<div class="results__table-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th scope="col">题号</th>
+							<th scope="col">选择</th>
+						</tr>
+					</thead>
+					<tbody data-result-rows></tbody>
+				</table>
+			</div>
+		</div>
+	</section>
+
+	<noscript>
+		<p class="noscript-message">This experiment requires JavaScript.</p>
+	</noscript>
+
+	<script type="application/json" data-experiment-assets set:html={assetPayload}></script>
+</main>
+
+<script>
+	import { EXPERIMENT_DEFINITION } from "../data/experiment-flow.js";
+	import {
+		createInitialState,
+		getCurrentStep,
+		getNextStepIds,
+		transition,
+	} from "../lib/experiment-machine.js";
+
+	const root = document.querySelector("[data-experiment-root]");
+
+	if (root instanceof HTMLElement) {
+		const assetNode = root.querySelector("[data-experiment-assets]");
+		const shell = root.querySelector("[data-experiment-shell]");
+		const stage = root.querySelector("[data-stage]");
+		const stimulus = root.querySelector("[data-stimulus]");
+		const hotspotLayer = root.querySelector("[data-hotspots]");
+		const loadStatus = root.querySelector("[data-load-status]");
+		const loadError = root.querySelector("[data-load-error]");
+		const retryButton = root.querySelector("[data-retry]");
+		const results = root.querySelector("[data-results]");
+		const resultCounts = root.querySelector("[data-result-counts]");
+		const resultRows = root.querySelector("[data-result-rows]");
+
+		if (
+			assetNode instanceof HTMLScriptElement &&
+			shell instanceof HTMLElement &&
+			stage instanceof HTMLElement &&
+			stimulus instanceof HTMLImageElement &&
+			hotspotLayer instanceof HTMLElement &&
+			loadStatus instanceof HTMLElement &&
+			loadError instanceof HTMLElement &&
+			retryButton instanceof HTMLButtonElement &&
+			results instanceof HTMLElement &&
+			resultCounts instanceof HTMLElement &&
+			resultRows instanceof HTMLElement
+		) {
+			const assets = JSON.parse(assetNode.textContent || "{}");
+			let state = createInitialState(EXPERIMENT_DEFINITION);
+			let renderToken = 0;
+			let unlockTimer;
+
+			const setControlsEnabled = () => {
+				for (const control of hotspotLayer.querySelectorAll("button")) {
+					control.disabled = !state.unlocked;
+				}
+			};
+
+			const dispatch = (event) => {
+				const previous = state;
+				const next = transition(EXPERIMENT_DEFINITION, state, event);
+				if (next === previous) return;
+				state = next;
+
+				if (next.stepId !== previous.stepId) {
+					void renderCurrentStep();
+				} else {
+					setControlsEnabled();
+				}
+			};
+
+			const createHotspot = (hotspot, step) => {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = `hotspot${hotspot.shape === "circle" ? " hotspot--circle" : ""}`;
+				button.style.left = `${hotspot.x * 100}%`;
+				button.style.top = `${hotspot.y * 100}%`;
+				button.style.width = `${hotspot.width * 100}%`;
+				button.style.height = `${hotspot.height * 100}%`;
+				button.setAttribute("aria-label", hotspot.label);
+
+				if (hotspot.pointerOnly) {
+					button.tabIndex = -1;
+					button.setAttribute("aria-hidden", "true");
+				}
+
+				button.addEventListener("click", () => {
+					if (step.kind === "advance") {
+						dispatch({ type: "ADVANCE" });
+					} else {
+						dispatch({ type: "CHOOSE", value: hotspot.choice });
+					}
+				});
+				return button;
+			};
+
+			const renderHotspots = (step) => {
+				hotspotLayer.replaceChildren();
+				if (step.kind === "advance") {
+					hotspotLayer.append(
+						createHotspot(
+							{
+								label: "Continue",
+								shape: "rect",
+								x: 0,
+								y: 0,
+								width: 1,
+								height: 1,
+							},
+							step,
+						),
+					);
+				} else if (step.kind === "choice") {
+					for (const hotspot of step.hotspots) {
+						hotspotLayer.append(createHotspot(hotspot, step));
+					}
+				}
+				setControlsEnabled();
+			};
+
+			const loadImage = async (asset) => {
+				const loader = new Image();
+				loader.decoding = "async";
+				loader.src = asset.src;
+
+				await new Promise((resolve, reject) => {
+					if (loader.complete) {
+						loader.naturalWidth > 0 ? resolve(undefined) : reject(new Error("Image load failed"));
+						return;
+					}
+					loader.addEventListener("load", () => resolve(undefined), { once: true });
+					loader.addEventListener("error", () => reject(new Error("Image load failed")), {
+						once: true,
+					});
+				});
+
+				if (typeof loader.decode === "function") {
+					await loader.decode().catch(() => undefined);
+				}
+				return loader;
+			};
+
+			const preloadFollowingAssets = (step) => {
+				for (const nextStepId of getNextStepIds(step)) {
+					const nextStep = EXPERIMENT_DEFINITION.steps[nextStepId];
+					const nextAsset = nextStep?.assetKey ? assets[nextStep.assetKey] : null;
+					if (!nextAsset) continue;
+					const loader = new Image();
+					loader.decoding = "async";
+					loader.src = nextAsset.src;
+					if (typeof loader.decode === "function") {
+						void loader.decode().catch(() => undefined);
+					}
+				}
+			};
+
+			const renderResults = () => {
+				shell.hidden = true;
+				results.hidden = false;
+				resultRows.replaceChildren();
+
+				const optionOneCount = state.answers.filter((answer) => answer === 1).length;
+				const optionTwoCount = state.answers.filter((answer) => answer === 2).length;
+				resultCounts.textContent = `Option 1：${optionOneCount} 次 · Option 2：${optionTwoCount} 次`;
+
+				state.answers.forEach((answer, index) => {
+					const row = document.createElement("tr");
+					const questionCell = document.createElement("th");
+					const answerCell = document.createElement("td");
+					questionCell.scope = "row";
+					questionCell.textContent = String(index + 1);
+					answerCell.textContent = answer ? `Option ${answer}` : "—";
+					row.append(questionCell, answerCell);
+					resultRows.append(row);
+				});
+			};
+
+			const renderCurrentStep = async () => {
+				const token = ++renderToken;
+				if (unlockTimer) window.clearTimeout(unlockTimer);
+
+				const step = getCurrentStep(EXPERIMENT_DEFINITION, state);
+				if (step.kind === "result") {
+					renderResults();
+					return;
+				}
+
+				const asset = assets[step.assetKey];
+				shell.hidden = false;
+				results.hidden = true;
+				stage.hidden = true;
+				stage.setAttribute("aria-busy", "true");
+				loadError.hidden = true;
+				loadStatus.hidden = false;
+				loadStatus.textContent = "Loading stimulus…";
+				hotspotLayer.replaceChildren();
+
+				if (!asset) {
+					loadStatus.hidden = true;
+					loadError.hidden = false;
+					return;
+				}
+
+				try {
+					const loaded = await loadImage(asset);
+					if (token !== renderToken) return;
+
+					stimulus.src = loaded.src;
+					stimulus.width = asset.width;
+					stimulus.height = asset.height;
+					stimulus.alt = step.recordQuestion
+						? `Choice question ${step.recordQuestion}`
+						: `Experiment instruction ${step.id.replace("slide-", "")}`;
+					renderHotspots(step);
+					stage.hidden = false;
+					stage.setAttribute("aria-busy", "false");
+					loadStatus.hidden = true;
+
+					const revision = state.revision;
+					const unlock = () => dispatch({ type: "UNLOCK", revision });
+					if (step.delayMs > 0) {
+						unlockTimer = window.setTimeout(unlock, step.delayMs);
+					} else {
+						unlock();
+					}
+					preloadFollowingAssets(step);
+				} catch {
+					if (token !== renderToken) return;
+					loadStatus.hidden = true;
+					loadError.hidden = false;
+				}
+			};
+
+			retryButton.addEventListener("click", () => void renderCurrentStep());
+			void renderCurrentStep();
+		}
+	}
+</script>
+
+<style is:global>
+	.experiment {
+		width: 100%;
+		height: 100svh;
+		min-height: 100%;
+		background: #fff;
+	}
+
+	.experiment-shell {
+		display: grid;
+		width: 100%;
+		height: 100svh;
+		place-items: center;
+		padding: 16px;
+	}
+
+	.stimulus-frame {
+		position: relative;
+		max-width: calc(100vw - 32px);
+		max-height: calc(100svh - 32px);
+		line-height: 0;
+		background: #fff;
+	}
+
+	.stimulus-frame img {
+		display: block;
+		width: auto;
+		height: auto;
+		max-width: calc(100vw - 32px);
+		max-height: calc(100svh - 32px);
+		object-fit: contain;
+		user-select: none;
+		-webkit-user-drag: none;
+	}
+
+	.hotspot-layer {
+		position: absolute;
+		inset: 0;
+		line-height: normal;
+	}
+
+	.hotspot {
+		position: absolute;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+		color: transparent;
+		cursor: pointer;
+		opacity: 0;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.hotspot--circle {
+		border-radius: 50%;
+	}
+
+	.hotspot:disabled {
+		cursor: default;
+	}
+
+	.hotspot:focus-visible {
+		opacity: 1;
+		outline: 4px solid #1769e0;
+		outline-offset: -4px;
+		background: rgb(23 105 224 / 5%);
+	}
+
+	.load-status,
+	.noscript-message {
+		margin: 0;
+		font-size: 0.95rem;
+		color: #4a4a4a;
+	}
+
+	.load-error {
+		max-width: 28rem;
+		padding: 24px;
+		text-align: center;
+	}
+
+	.load-error p {
+		margin: 0 0 16px;
+	}
+
+	.load-error button {
+		min-width: 7rem;
+		padding: 9px 18px;
+		border: 1px solid #1f1f1f;
+		border-radius: 4px;
+		background: #fff;
+		color: #1f1f1f;
+		font: inherit;
+		cursor: pointer;
+	}
+
+	.device-warning {
+		display: none;
+		width: 100%;
+		height: 100svh;
+		align-items: center;
+		justify-content: center;
+		padding: 24px;
+		background: #f4f4f1;
+	}
+
+	.device-warning__panel {
+		width: min(100%, 32rem);
+		padding: 32px;
+		border: 1px solid #d7d7d0;
+		border-radius: 10px;
+		background: #fff;
+		text-align: center;
+	}
+
+	.device-warning h1 {
+		margin: 0 0 12px;
+		font-size: 1.35rem;
+	}
+
+	.device-warning p {
+		margin: 0;
+		line-height: 1.65;
+		color: #555;
+	}
+
+	.results {
+		display: grid;
+		width: 100%;
+		height: 100svh;
+		place-items: center;
+		padding: 16px;
+		background: #f4f4f1;
+	}
+
+	.results__panel {
+		width: min(100%, 42rem);
+		max-height: calc(100svh - 32px);
+		overflow: auto;
+		padding: 28px 32px 32px;
+		border: 1px solid #d7d7d0;
+		border-radius: 10px;
+		background: #fff;
+		box-shadow: 0 18px 50px rgb(0 0 0 / 7%);
+	}
+
+	.results__eyebrow {
+		margin: 0 0 8px;
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: #747474;
+	}
+
+	.results h1 {
+		margin: 0;
+		font-size: clamp(1.7rem, 3vw, 2.4rem);
+		font-weight: 650;
+		letter-spacing: -0.025em;
+	}
+
+	.results__note {
+		margin: 8px 0 18px;
+		color: #666;
+		line-height: 1.55;
+	}
+
+	.results__counts {
+		margin-bottom: 16px;
+		padding: 12px 14px;
+		border-radius: 6px;
+		background: #f3f5f7;
+		font-weight: 650;
+	}
+
+	.results__table-wrap {
+		overflow: hidden;
+		border: 1px solid #dedede;
+		border-radius: 6px;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-variant-numeric: tabular-nums;
+	}
+
+	th,
+	td {
+		padding: 8px 14px;
+		border-bottom: 1px solid #e7e7e7;
+		text-align: left;
+	}
+
+	thead th {
+		background: #f7f7f5;
+		font-size: 0.78rem;
+		letter-spacing: 0.04em;
+		color: #555;
+	}
+
+	tbody th {
+		width: 35%;
+		font-weight: 500;
+		color: #666;
+	}
+
+	tbody tr:last-child th,
+	tbody tr:last-child td {
+		border-bottom: 0;
+	}
+
+	@media (max-width: 899px), (max-height: 599px) {
+		.experiment-shell,
+		.results {
+			display: none !important;
+		}
+
+		.device-warning {
+			display: flex;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		* {
+			scroll-behavior: auto !important;
+		}
+	}
+</style>
