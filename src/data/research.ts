@@ -30,13 +30,12 @@ export const researchProfile = {
 	],
 	researchTheme: "Modeling and Analysis of Multi-Agent Systems",
 	overview: [
-		"My research focuses on mathematical modeling and analysis of multi-agent systems, with particular interests in how autonomous agents interact, learn, compete, and coordinate in complex networks. I develop theoretical frameworks combining dynamical systems, optimization, and game theory to study collective behaviors, resource allocation, fairness-efficiency trade-offs, and strategic decision-making among interacting agents.",
-		"Modern systems increasingly consist of multiple autonomous decision-makers whose behaviors are coupled through social interactions, resource constraints, and strategic incentives.",
-		"My research aims to understand the underlying mechanisms governing such systems through rigorous mathematical modeling and analysis.",
+		"Modern systems increasingly consist of multiple autonomous decision-makers whose behaviors are coupled through social interactions, resource constraints, and strategic incentives. My research aims to understand the underlying mechanisms governing such systems through mathematical modeling and dynamic analysis.",
+		"My research focuses on how autonomous agents interact, learn, compete, and coordinate in complex networks. I develop theoretical frameworks combining dynamical systems, optimization, and game theory to study collective behaviors, resource allocation, fairness-efficiency trade-offs, and strategic decision-making among interacting agents.",
 	],
 	questions: [
 		"How do individual agents influence each other's states and collective behaviors?",
-		"How should limited resources be allocated among competing objectives and agents?",
+		"How do fairness preferences shape coordination and system behavior?",
 		"How can appropriate mechanisms and incentives promote desirable long-term outcomes?",
 	],
 };
