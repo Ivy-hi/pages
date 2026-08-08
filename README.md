@@ -116,3 +116,24 @@ Use `--prepare-only` to update, verify, and commit the site locally without
 publishing. Run `npm run photo:release` when that local commit is ready, or use
 the same command to retry after a GitHub or Cloudflare failure. The publisher
 ignores untracked files, but stops if tracked files already have changes.
+
+## Writing Plog Entries
+
+Create Markdown files in `src/content/plog`. Use `lang: zh-CN` for Chinese
+entries so the page uses the Chinese font, date format, interface labels, and
+document language:
+
+```yaml
+---
+title: 一次散步
+description: 关于光线、街道和一张照片的短记。
+pubDate: 2026-08-08
+lang: zh-CN
+cover: ../../assets/photography/example.jpg
+coverAlt: 傍晚街道上的行人与灯光
+draft: false
+---
+```
+
+Use `lang: en` for English entries. Existing entries default to English when
+the field is omitted.
