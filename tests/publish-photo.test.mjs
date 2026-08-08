@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { basename, dirname, join } from "node:path";
 import test from "node:test";
 
 import {
 	buildFilename,
+	createTemporaryDirectory,
 	parseArguments,
 	slugify,
 } from "../scripts/publish-photo.mjs";
@@ -58,3 +61,23 @@ test("parseArguments supports interactive and agent workflows", () => {
 		/only one source photo/,
 	);
 });
+
+test(
+	"temporary publishing directory falls back when the preferred path is unusable",
+	async (context) => {
+		const testRoot = await mkdtemp(join("/tmp", "photo-publisher-test-"));
+		context.after(() => rm(testRoot, { force: true, recursive: true }));
+
+		const unusablePath = join(testRoot, "not-a-directory");
+		const fallbackDirectory = join(testRoot, "fallback");
+		await writeFile(unusablePath, "occupied by a file", "utf8");
+
+		const temporaryDirectory = await createTemporaryDirectory([
+			unusablePath,
+			fallbackDirectory,
+		]);
+
+		assert.equal(dirname(temporaryDirectory), fallbackDirectory);
+		assert.match(basename(temporaryDirectory), /^photo-publish-/);
+	},
+);

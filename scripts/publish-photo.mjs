@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import {
 	access,
 	mkdtemp,
+	mkdir,
 	readFile,
 	rm,
 	stat,
@@ -490,6 +491,33 @@ async function pathExists(path) {
 	}
 }
 
+export async function createTemporaryDirectory(
+	candidates = [
+		process.env.PHOTO_PUBLISH_TMPDIR,
+		tmpdir(),
+		join(homedir(), ".cache", "hanyi-photo-publisher"),
+		"/tmp",
+	],
+) {
+	const failures = [];
+	const directories = [
+		...new Set(candidates.filter(Boolean).map((directory) => resolve(directory))),
+	];
+
+	for (const directory of directories) {
+		try {
+			await mkdir(directory, { recursive: true });
+			return await mkdtemp(join(directory, "photo-publish-"));
+		} catch (error) {
+			failures.push(`${directory} (${error.code ?? error.message})`);
+		}
+	}
+
+	throw new Error(
+		`Could not create a temporary publishing directory. Tried: ${failures.join(", ")}.`,
+	);
+}
+
 function formatMegabytes(bytes) {
 	return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
@@ -627,7 +655,7 @@ async function releaseLocalBranch(subject, marker = "") {
 	await run("git", ["push", "origin", "local"]);
 	await run("git", ["fetch", "origin"]);
 
-	const temporaryRoot = await mkdtemp(join(tmpdir(), "photo-publish-"));
+	const temporaryRoot = await createTemporaryDirectory();
 	const worktree = join(temporaryRoot, "main");
 	let worktreeAdded = false;
 	let worktreeRemoved = false;
