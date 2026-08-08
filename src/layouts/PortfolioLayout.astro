@@ -3,6 +3,7 @@ import "@fontsource/cormorant-garamond/latin-400.css";
 import "@fontsource/cormorant-garamond/latin-500.css";
 import "@fontsource/eb-garamond/latin-400.css";
 import "@fontsource/eb-garamond/latin-500.css";
+import "@fontsource/noto-serif-sc/chinese-simplified-400.css";
 import "../styles/portfolio.css";
 
 import PortfolioSidebar from "../components/PortfolioSidebar.astro";
@@ -11,11 +12,13 @@ import { portfolio } from "../data/portfolio";
 interface Props {
 	title?: string;
 	description?: string;
+	lang?: "en" | "zh-CN";
 }
 
 const {
 	title = portfolio.title,
 	description = portfolio.description,
+	lang = "en",
 } = Astro.props;
 const canonical = Astro.site
 	? new URL(Astro.url.pathname, Astro.site).href
@@ -24,7 +27,7 @@ const year = new Date().getFullYear();
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />

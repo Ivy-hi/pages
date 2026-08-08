@@ -8,6 +8,7 @@ const plog = defineCollection({
 			title: z.string(),
 			description: z.string(),
 			pubDate: z.coerce.date(),
+			lang: z.enum(["en", "zh-CN"]).default("en"),
 			cover: image(),
 			coverAlt: z.string(),
 			draft: z.boolean().default(false),

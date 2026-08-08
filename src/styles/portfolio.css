@@ -8,8 +8,10 @@
 	--portfolio-sidebar-width: 286px;
 	--portfolio-pad: clamp(1.25rem, 3vw, 2.75rem);
 	--portfolio-gap: clamp(0.7rem, 1.1vw, 1rem);
-	--portfolio-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-	--portfolio-body: "EB Garamond", Georgia, "Times New Roman", serif;
+	--portfolio-display: "Cormorant Garamond", "Noto Serif SC", "Songti SC",
+		STSong, Georgia, "Times New Roman", serif;
+	--portfolio-body: "EB Garamond", "Noto Serif SC", "Songti SC", STSong,
+		Georgia, "Times New Roman", serif;
 }
 
 :root[data-theme="dark"] {

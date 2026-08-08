@@ -3,16 +3,16 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { portfolio } from "../../data/portfolio";
 import PortfolioLayout from "../../layouts/PortfolioLayout.astro";
+import { formatPlogDate, getPlogCopy } from "../../lib/plog-language.mjs";
 
 const entries = (await getCollection("plog", ({ data }) => !data.draft)).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-const formatDate = (date: Date) =>
-	new Intl.DateTimeFormat("en", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	}).format(date);
+const localizedEntries = entries.map((entry) => ({
+	entry,
+	copy: getPlogCopy(entry.data.lang),
+	formattedDate: formatPlogDate(entry.data.pubDate, entry.data.lang),
+}));
 ---
 
 <PortfolioLayout
@@ -27,9 +27,9 @@ const formatDate = (date: Date) =>
 
 	<section class="plog-list" aria-label="Plog entries">
 		{
-			entries.map((entry) => (
-				<article class="plog-entry">
-					<a class="plog-entry__image" href={`/plog/${entry.id}/`} aria-label={`Read ${entry.data.title}`}>
+			localizedEntries.map(({ entry, copy, formattedDate }) => (
+				<article class="plog-entry" lang={entry.data.lang}>
+					<a class="plog-entry__image" href={`/plog/${entry.id}/`} aria-label={copy.readAria(entry.data.title)}>
 						<Image
 							src={entry.data.cover}
 							alt={entry.data.coverAlt}
@@ -39,12 +39,12 @@ const formatDate = (date: Date) =>
 						/>
 					</a>
 					<div class="plog-entry__copy">
-						<time datetime={entry.data.pubDate.toISOString()}>{formatDate(entry.data.pubDate)}</time>
+						<time datetime={entry.data.pubDate.toISOString()}>{formattedDate}</time>
 						<h2>
 							<a href={`/plog/${entry.id}/`}>{entry.data.title}</a>
 						</h2>
 						<p>{entry.data.description}</p>
-						<a class="plog-entry__link" href={`/plog/${entry.id}/`}>Read note</a>
+						<a class="plog-entry__link" href={`/plog/${entry.id}/`}>{copy.read}</a>
 					</div>
 				</article>
 			))
@@ -138,6 +138,15 @@ const formatDate = (date: Date) =>
 	.plog-entry p {
 		margin: 0;
 		color: var(--portfolio-muted);
+	}
+
+	.plog-entry:lang(zh-CN) h2 {
+		font-weight: 400;
+		line-height: 1.35;
+	}
+
+	.plog-entry:lang(zh-CN) p {
+		line-height: 1.8;
 	}
 
 	.plog-entry__link {

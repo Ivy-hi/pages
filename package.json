@@ -17,6 +17,7 @@
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/eb-garamond": "^5.3.0",
+    "@fontsource/noto-serif-sc": "^5.3.0",
     "@lucide/astro": "^1.28.0",
     "astro": "^5.17.1"
   },

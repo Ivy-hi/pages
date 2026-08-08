@@ -4,6 +4,7 @@ import { Image } from "astro:assets";
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import { portfolio } from "../../data/portfolio";
 import PortfolioLayout from "../../layouts/PortfolioLayout.astro";
+import { formatPlogDate, getPlogCopy } from "../../lib/plog-language.mjs";
 
 export async function getStaticPaths() {
 	const entries = await getCollection("plog", ({ data }) => !data.draft);
@@ -19,21 +20,19 @@ interface Props {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const formattedDate = new Intl.DateTimeFormat("en", {
-	year: "numeric",
-	month: "long",
-	day: "numeric",
-}).format(entry.data.pubDate);
+const copy = getPlogCopy(entry.data.lang);
+const formattedDate = formatPlogDate(entry.data.pubDate, entry.data.lang);
 ---
 
 <PortfolioLayout
 	title={`${entry.data.title} | ${portfolio.name}`}
 	description={entry.data.description}
+	lang={entry.data.lang}
 >
-	<article class="plog-post">
+	<article class="plog-post" lang={entry.data.lang}>
 		<a class="plog-back" href="/plog">
 			<ArrowLeft aria-hidden="true" size={17} stroke-width={1.5} />
-			<span>All entries</span>
+			<span>{copy.back}</span>
 		</a>
 
 		<header class="plog-post__head">
@@ -138,6 +137,27 @@ const formattedDate = new Intl.DateTimeFormat("en", {
 		font-family: var(--portfolio-display);
 		font-weight: 500;
 		letter-spacing: 0;
+	}
+
+	.plog-post:lang(zh-CN) .plog-post__head h1 {
+		font-weight: 400;
+		line-height: 1.35;
+	}
+
+	.plog-post:lang(zh-CN) .plog-post__head p {
+		line-height: 1.75;
+	}
+
+	.plog-post:lang(zh-CN) .plog-post__body {
+		line-break: strict;
+		line-height: 1.9;
+		word-break: normal;
+	}
+
+	.plog-post:lang(zh-CN) .plog-post__body :global(h2),
+	.plog-post:lang(zh-CN) .plog-post__body :global(h3) {
+		font-weight: 400;
+		line-height: 1.45;
 	}
 
 	@media (max-width: 760px) {
