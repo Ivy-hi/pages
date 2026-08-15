@@ -1,4 +1,5 @@
 ---
+import type { ImageMetadata } from "astro";
 import instruction1 from "../../exp/Instruction/幻灯片1.jpeg?url";
 import instruction2 from "../../exp/Instruction/幻灯片2.jpeg?url";
 import instruction5 from "../../exp/Instruction/幻灯片5.jpeg?url";
@@ -24,24 +25,31 @@ import instruction28 from "../../exp/Instruction/幻灯片28.jpeg?url";
 import instruction29 from "../../exp/Instruction/幻灯片29.jpeg?url";
 import instruction30 from "../../exp/Instruction/幻灯片30.jpeg?url";
 import instruction31 from "../../exp/Instruction/幻灯片31.jpeg?url";
+import { buildQuestionCatalog } from "../lib/experiment-assets.js";
 
-import question01 from "../../exp/flower_round/Q0001_IdxQ405001_flower_round.png?url";
-import question02 from "../../exp/flower_round/Q0002_IdxQ405002_flower_round.png?url";
-import question03 from "../../exp/flower_round/Q0003_IdxQ405003_flower_round.png?url";
-import question04 from "../../exp/flower_round/Q0004_IdxQ405004_flower_round.png?url";
-import question05 from "../../exp/flower_round/Q0005_IdxQ405005_flower_round.png?url";
-import question06 from "../../exp/flower_round/Q0006_IdxQ405006_flower_round.png?url";
-import question07 from "../../exp/flower_round/Q0007_IdxQ405007_flower_round.png?url";
-import question08 from "../../exp/flower_round/Q0008_IdxQ405008_flower_round.png?url";
-import question09 from "../../exp/flower_round/Q0009_IdxQ405009_flower_round.png?url";
-import question10 from "../../exp/flower_round/Q0010_IdxQ405010_flower_round.png?url";
-import question11 from "../../exp/flower_round/Q0011_IdxQ405011_flower_round.png?url";
-import question12 from "../../exp/flower_round/Q0012_IdxQ405012_flower_round.png?url";
-import question13 from "../../exp/flower_round/Q0013_IdxQ405013_flower_round.png?url";
-import question14 from "../../exp/flower_round/Q0014_IdxQ405014_flower_round.png?url";
-import question15 from "../../exp/flower_round/Q0015_IdxQ405015_flower_round.png?url";
+const roundQuestionModules = {
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round/Q000[1-9]_*.png",
+		{ eager: true },
+	),
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round/Q001[0-5]_*.png",
+		{ eager: true },
+	),
+};
 
-const instructionAssets = {
+const columnQuestionModules = {
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round_column/Q000[1-9]_*.png",
+		{ eager: true },
+	),
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round_column/Q001[0-5]_*.png",
+		{ eager: true },
+	),
+};
+
+const instructionImages = {
 	"instruction-1": instruction1,
 	"instruction-2": instruction2,
 	"instruction-5": instruction5,
@@ -69,35 +77,17 @@ const instructionAssets = {
 	"instruction-31": instruction31,
 };
 
-const questionAssets = [
-	question01,
-	question02,
-	question03,
-	question04,
-	question05,
-	question06,
-	question07,
-	question08,
-	question09,
-	question10,
-	question11,
-	question12,
-	question13,
-	question14,
-	question15,
-];
-
-const assets = Object.fromEntries([
-	...Object.entries(instructionAssets).map(([key, src]) => [
+const instructions = Object.fromEntries(
+	Object.entries(instructionImages).map(([key, src]) => [
 		key,
 		{ src, width: 2880, height: 2160 },
 	]),
-	...questionAssets.map((src, index) => [
-		`question-${String(index + 1).padStart(2, "0")}`,
-		{ src, width: 3270, height: 1620 },
-	]),
-]);
-
+);
+const questions = buildQuestionCatalog(
+	{ round: roundQuestionModules, column: columnQuestionModules },
+	{ min: 1, max: 15 },
+);
+const assets = { instructions, questions };
 const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 ---
 
@@ -112,9 +102,34 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 	<section class="experiment-shell" data-experiment-shell aria-label="Behavioral experiment preview">
 		<p class="load-status" data-load-status role="status">Loading stimulus…</p>
 
-		<div class="stimulus-frame" data-stage hidden aria-busy="true">
-			<img data-stimulus alt="" draggable="false" decoding="async" />
-			<div class="hotspot-layer" data-hotspots></div>
+		<div class="experiment-content" data-experiment-content hidden>
+			<fieldset class="style-switch" data-style-selector hidden>
+				<legend class="visually-hidden">选择正式题图片样式</legend>
+				<label class="style-switch__option">
+					<input
+						type="radio"
+						name="experiment-image-style"
+						value="round"
+						data-style-option
+						checked
+					/>
+					<span>圆形图</span>
+				</label>
+				<label class="style-switch__option">
+					<input
+						type="radio"
+						name="experiment-image-style"
+						value="column"
+						data-style-option
+					/>
+					<span>柱状图</span>
+				</label>
+			</fieldset>
+
+			<div class="stimulus-frame" data-stage hidden aria-busy="true">
+				<img data-stimulus alt="" draggable="false" decoding="async" />
+				<div class="hotspot-layer" data-hotspots></div>
+			</div>
 		</div>
 
 		<div class="load-error" data-load-error hidden role="alert">
@@ -158,12 +173,16 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 		getNextStepIds,
 		transition,
 	} from "../lib/experiment-machine.js";
+	import { resolveStepAsset } from "../lib/experiment-assets.js";
 
 	const root = document.querySelector("[data-experiment-root]");
 
 	if (root instanceof HTMLElement) {
 		const assetNode = root.querySelector("[data-experiment-assets]");
 		const shell = root.querySelector("[data-experiment-shell]");
+		const experimentContent = root.querySelector("[data-experiment-content]");
+		const styleSelector = root.querySelector("[data-style-selector]");
+		const styleOptions = root.querySelectorAll("[data-style-option]");
 		const stage = root.querySelector("[data-stage]");
 		const stimulus = root.querySelector("[data-stimulus]");
 		const hotspotLayer = root.querySelector("[data-hotspots]");
@@ -177,6 +196,9 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 		if (
 			assetNode instanceof HTMLScriptElement &&
 			shell instanceof HTMLElement &&
+			experimentContent instanceof HTMLElement &&
+			styleSelector instanceof HTMLFieldSetElement &&
+			styleOptions.length === 2 &&
 			stage instanceof HTMLElement &&
 			stimulus instanceof HTMLImageElement &&
 			hotspotLayer instanceof HTMLElement &&
@@ -189,8 +211,28 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 		) {
 			const assets = JSON.parse(assetNode.textContent || "{}");
 			let state = createInitialState(EXPERIMENT_DEFINITION);
+			let activeStyle = "round";
+			let displayedStyle = null;
 			let renderToken = 0;
 			let unlockTimer;
+			let statusTimer;
+
+			const syncStyleSelector = () => {
+				for (const option of styleOptions) {
+					if (option instanceof HTMLInputElement) {
+						option.checked = option.value === activeStyle;
+					}
+				}
+			};
+
+			const showTransientStatus = (message) => {
+				if (statusTimer) window.clearTimeout(statusTimer);
+				loadStatus.textContent = message;
+				loadStatus.hidden = false;
+				statusTimer = window.setTimeout(() => {
+					loadStatus.hidden = true;
+				}, 2400);
+			};
 
 			const setControlsEnabled = () => {
 				for (const control of hotspotLayer.querySelectorAll("button")) {
@@ -282,22 +324,31 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 				return loader;
 			};
 
-			const preloadFollowingAssets = (step) => {
+			const preloadAsset = (asset) => {
+				if (!asset) return;
+				const loader = new Image();
+				loader.decoding = "async";
+				loader.src = asset.src;
+				if (typeof loader.decode === "function") {
+					void loader.decode().catch(() => undefined);
+				}
+			};
+
+			const preloadRelatedAssets = (step) => {
+				if (step.recordQuestion) {
+					const alternateStyle = activeStyle === "round" ? "column" : "round";
+					preloadAsset(resolveStepAsset(assets, step, alternateStyle));
+				}
+
 				for (const nextStepId of getNextStepIds(step)) {
 					const nextStep = EXPERIMENT_DEFINITION.steps[nextStepId];
-					const nextAsset = nextStep?.assetKey ? assets[nextStep.assetKey] : null;
-					if (!nextAsset) continue;
-					const loader = new Image();
-					loader.decoding = "async";
-					loader.src = nextAsset.src;
-					if (typeof loader.decode === "function") {
-						void loader.decode().catch(() => undefined);
-					}
+					preloadAsset(resolveStepAsset(assets, nextStep, activeStyle));
 				}
 			};
 
 			const renderResults = () => {
 				shell.hidden = true;
+				styleSelector.hidden = true;
 				results.hidden = false;
 				resultRows.replaceChildren();
 
@@ -317,9 +368,18 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 				});
 			};
 
-			const renderCurrentStep = async () => {
+			const renderCurrentStep = async (
+				{ isStyleSwitch = false, fallbackStyle = displayedStyle } = {},
+			) => {
 				const token = ++renderToken;
-				if (unlockTimer) window.clearTimeout(unlockTimer);
+				if (statusTimer) {
+					window.clearTimeout(statusTimer);
+					statusTimer = undefined;
+				}
+				if (!isStyleSwitch && unlockTimer) {
+					window.clearTimeout(unlockTimer);
+					unlockTimer = undefined;
+				}
 
 				const step = getCurrentStep(EXPERIMENT_DEFINITION, state);
 				if (step.kind === "result") {
@@ -327,19 +387,36 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 					return;
 				}
 
-				const asset = assets[step.assetKey];
+				const isFormalQuestion = Boolean(step.recordQuestion);
+				const asset = resolveStepAsset(assets, step, activeStyle);
 				shell.hidden = false;
 				results.hidden = true;
-				stage.hidden = true;
+				styleSelector.hidden = !isFormalQuestion;
+				experimentContent.classList.toggle(
+					"experiment-content--question",
+					isFormalQuestion,
+				);
+				if (!isStyleSwitch) {
+					experimentContent.hidden = true;
+					stage.hidden = true;
+				}
 				stage.setAttribute("aria-busy", "true");
 				loadError.hidden = true;
 				loadStatus.hidden = false;
-				loadStatus.textContent = "Loading stimulus…";
+				loadStatus.textContent = isStyleSwitch ? "正在切换图片样式…" : "Loading stimulus…";
 				hotspotLayer.replaceChildren();
 
 				if (!asset) {
-					loadStatus.hidden = true;
-					loadError.hidden = false;
+					if (isStyleSwitch && displayedStyle) {
+						activeStyle = fallbackStyle || displayedStyle;
+						syncStyleSelector();
+						renderHotspots(step);
+						stage.setAttribute("aria-busy", "false");
+						showTransientStatus("该样式暂时无法加载，已恢复原样式。");
+					} else {
+						loadStatus.hidden = true;
+						loadError.hidden = false;
+					}
 					return;
 				}
 
@@ -353,27 +430,60 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 					stimulus.alt = step.recordQuestion
 						? `Choice question ${step.recordQuestion}`
 						: `Experiment instruction ${step.id.replace("slide-", "")}`;
+					displayedStyle = isFormalQuestion ? activeStyle : null;
 					renderHotspots(step);
 					stage.hidden = false;
+					experimentContent.hidden = false;
 					stage.setAttribute("aria-busy", "false");
 					loadStatus.hidden = true;
 
-					const revision = state.revision;
-					const unlock = () => dispatch({ type: "UNLOCK", revision });
-					if (step.delayMs > 0) {
-						unlockTimer = window.setTimeout(unlock, step.delayMs);
-					} else {
-						unlock();
+					if (!isStyleSwitch) {
+						const revision = state.revision;
+						const unlock = () => dispatch({ type: "UNLOCK", revision });
+						if (step.delayMs > 0) {
+							unlockTimer = window.setTimeout(unlock, step.delayMs);
+						} else {
+							unlock();
+						}
 					}
-					preloadFollowingAssets(step);
+					preloadRelatedAssets(step);
 				} catch {
 					if (token !== renderToken) return;
-					loadStatus.hidden = true;
-					loadError.hidden = false;
+					if (isStyleSwitch && displayedStyle) {
+						activeStyle = fallbackStyle || displayedStyle;
+						syncStyleSelector();
+						renderHotspots(step);
+						stage.setAttribute("aria-busy", "false");
+						showTransientStatus("该样式暂时无法加载，已恢复原样式。");
+					} else {
+						experimentContent.hidden = true;
+						stage.hidden = true;
+						loadStatus.hidden = true;
+						loadError.hidden = false;
+					}
 				}
 			};
 
+			for (const option of styleOptions) {
+				if (!(option instanceof HTMLInputElement)) continue;
+				option.addEventListener("change", () => {
+					if (
+						!option.checked ||
+						(option.value !== "round" && option.value !== "column") ||
+						option.value === activeStyle
+					) {
+						return;
+					}
+
+					const fallbackStyle = displayedStyle || activeStyle;
+					activeStyle = option.value;
+					syncStyleSelector();
+					void renderCurrentStep({ isStyleSwitch: true, fallbackStyle });
+				});
+			}
+
 			retryButton.addEventListener("click", () => void renderCurrentStep());
+			syncStyleSelector();
 			void renderCurrentStep();
 		}
 	}
@@ -395,6 +505,94 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 		padding: 16px;
 	}
 
+	.experiment-shell > .load-status,
+	.experiment-shell > .experiment-content,
+	.experiment-shell > .load-error {
+		grid-area: 1 / 1;
+	}
+
+	.experiment-content {
+		display: flex;
+		width: 100%;
+		max-height: calc(100svh - 32px);
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+	}
+
+	.experiment-content[hidden] {
+		display: none;
+	}
+
+	.style-switch {
+		display: inline-flex;
+		flex: 0 0 auto;
+		margin: 0;
+		padding: 3px;
+		border: 1px solid #d5d8dc;
+		border-radius: 8px;
+		background: #f3f5f7;
+		line-height: 1.2;
+	}
+
+	.style-switch[hidden] {
+		display: none;
+	}
+
+	.style-switch__option {
+		position: relative;
+		margin: 0;
+		cursor: pointer;
+	}
+
+	.style-switch__option input {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.style-switch__option span {
+		display: block;
+		min-width: 5rem;
+		padding: 7px 14px;
+		border-radius: 5px;
+		color: #555d66;
+		font-size: 0.88rem;
+		font-weight: 600;
+		text-align: center;
+		transition:
+			background-color 120ms ease,
+			box-shadow 120ms ease,
+			color 120ms ease;
+	}
+
+	.style-switch__option input:checked + span {
+		background: #fff;
+		box-shadow: 0 1px 4px rgb(0 0 0 / 14%);
+		color: #181a1d;
+	}
+
+	.style-switch__option input:focus-visible + span {
+		outline: 3px solid #1769e0;
+		outline-offset: 1px;
+	}
+
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
 	.stimulus-frame {
 		position: relative;
 		max-width: calc(100vw - 32px);
@@ -412,6 +610,11 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 		object-fit: contain;
 		user-select: none;
 		-webkit-user-drag: none;
+	}
+
+	.experiment-content--question .stimulus-frame,
+	.experiment-content--question .stimulus-frame img {
+		max-height: calc(100svh - 86px);
 	}
 
 	.hotspot-layer {
@@ -454,6 +657,15 @@ const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");
 		margin: 0;
 		font-size: 0.95rem;
 		color: #4a4a4a;
+	}
+
+	.load-status {
+		z-index: 3;
+		padding: 7px 11px;
+		border-radius: 5px;
+		background: rgb(255 255 255 / 88%);
+		box-shadow: 0 1px 6px rgb(0 0 0 / 10%);
+		pointer-events: none;
 	}
 
 	.load-error {
