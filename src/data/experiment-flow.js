@@ -60,6 +60,8 @@ const formalChoiceHotspots = [
 	},
 ];
 
+const FORMAL_QUESTION_COUNT = 30;
+
 const steps = {};
 
 function addAdvance(id, assetKey, next, delayMs = 0) {
@@ -127,9 +129,9 @@ addAdvance("slide-27", "instruction-27", "slide-28");
 addAdvance("slide-28", "instruction-28", "slide-29");
 addAdvance("slide-29", "instruction-29", "question-01");
 
-for (let question = 1; question <= 15; question += 1) {
+for (let question = 1; question <= FORMAL_QUESTION_COUNT; question += 1) {
 	const id = `question-${String(question).padStart(2, "0")}`;
-	const next = question === 15
+	const next = question === FORMAL_QUESTION_COUNT
 		? "slide-30"
 		: `question-${String(question + 1).padStart(2, "0")}`;
 	addChoice(
@@ -147,7 +149,7 @@ steps.results = { id: "results", kind: "result", delayMs: 0 };
 
 export const EXPERIMENT_DEFINITION = {
 	start: "slide-01",
-	questionCount: 15,
+	questionCount: FORMAL_QUESTION_COUNT,
 	steps,
 };
 
