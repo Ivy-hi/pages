@@ -33,7 +33,15 @@ const roundQuestionModules = {
 		{ eager: true },
 	),
 	...import.meta.glob<{ default: ImageMetadata }>(
-		"../../exp/flower_round/Q001[0-5]_*.png",
+		"../../exp/flower_round/Q001[0-9]_*.png",
+		{ eager: true },
+	),
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round/Q002[0-9]_*.png",
+		{ eager: true },
+	),
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round/Q0030_*.png",
 		{ eager: true },
 	),
 };
@@ -44,7 +52,15 @@ const columnQuestionModules = {
 		{ eager: true },
 	),
 	...import.meta.glob<{ default: ImageMetadata }>(
-		"../../exp/flower_round_column/Q001[0-5]_*.png",
+		"../../exp/flower_round_column/Q001[0-9]_*.png",
+		{ eager: true },
+	),
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round_column/Q002[0-9]_*.png",
+		{ eager: true },
+	),
+	...import.meta.glob<{ default: ImageMetadata }>(
+		"../../exp/flower_round_column/Q0030_*.png",
 		{ eager: true },
 	),
 };
@@ -85,7 +101,7 @@ const instructions = Object.fromEntries(
 );
 const questions = buildQuestionCatalog(
 	{ round: roundQuestionModules, column: columnQuestionModules },
-	{ min: 1, max: 15 },
+	{ min: 1, max: 30 },
 );
 const assets = { instructions, questions };
 const assetPayload = JSON.stringify(assets).replaceAll("<", "\\u003c");

@@ -43,7 +43,7 @@ function advance(state) {
 test("experiment definition is complete and internally valid", () => {
 	assert.deepEqual(validateDefinition(definition), []);
 	assert.equal(definition.start, "slide-01");
-	assert.equal(definition.questionCount, 15);
+	assert.equal(definition.questionCount, 30);
 	assert.equal(definition.steps.results.kind, "result");
 });
 
@@ -117,7 +117,7 @@ test("the three instruction choices follow their left and right branches", () =>
 
 test("formal choices accept only the two plot/title regions", () => {
 	const sharedHotspots = definition.steps["question-01"].hotspots;
-	for (let question = 1; question <= 15; question += 1) {
+	for (let question = 1; question <= 30; question += 1) {
 		const id = `question-${String(question).padStart(2, "0")}`;
 		const step = definition.steps[id];
 		assert.equal(step.recordQuestion, question);
@@ -143,12 +143,16 @@ test("formal choices accept only the two plot/title regions", () => {
 	}
 });
 
-test("15 formal answers are recorded in order before slides 30, 31, and results", () => {
+test("30 formal answers are recorded in order before slides 30, 31, and results", () => {
 	let state = advance(stateAt("slide-29", { unlocked: false }));
 	assert.equal(state.stepId, "question-01");
+	assert.deepEqual(definition.steps["question-30"].options, {
+		1: "slide-30",
+		2: "slide-30",
+	});
 
 	const expectedAnswers = [];
-	for (let question = 1; question <= 15; question += 1) {
+	for (let question = 1; question <= 30; question += 1) {
 		const choice = question % 2 === 0 ? 2 : 1;
 		expectedAnswers.push(choice);
 		state = transition(definition, unlock(state), { type: "CHOOSE", value: choice });
@@ -161,8 +165,8 @@ test("15 formal answers are recorded in order before slides 30, 31, and results"
 	assert.equal(state.stepId, "slide-31");
 	state = advance(state);
 	assert.equal(state.stepId, "results");
-	assert.equal(state.answers.filter((answer) => answer === 1).length, 8);
-	assert.equal(state.answers.filter((answer) => answer === 2).length, 7);
+	assert.equal(state.answers.filter((answer) => answer === 1).length, 15);
+	assert.equal(state.answers.filter((answer) => answer === 2).length, 15);
 });
 
 test("locks reject early clicks, stale timers, invalid choices, and double clicks", () => {
@@ -256,12 +260,13 @@ test("instruction assets required by the preview still exist", () => {
 test("question filenames are identified only by their Q####_ prefix", () => {
 	assert.equal(parseQuestionNumber("Q0007_any_middle_name_can_change.png"), 7);
 	assert.equal(parseQuestionNumber("/nested/path/Q0015_completely-different.png"), 15);
+	assert.equal(parseQuestionNumber("/nested/path/Q0030_still-opaque.png"), 30);
 	assert.equal(parseQuestionNumber("prefix_Q0001_not-at-start.png"), null);
 	assert.equal(parseQuestionNumber("Q001_too-short.png"), null);
 	assert.equal(parseQuestionNumber("Q0001missing-underscore.png"), null);
 });
 
-test("both real question styles pair Q1-Q15 with their actual dimensions", () => {
+test("both real question styles pair Q1-Q30 with their actual dimensions", () => {
 	const roundModules = realImageModuleMap("flower_round");
 	const columnModules = realImageModuleMap("flower_round_column");
 	const catalog = buildQuestionCatalog({
@@ -270,11 +275,11 @@ test("both real question styles pair Q1-Q15 with their actual dimensions", () =>
 	});
 
 	assert.deepEqual(Object.keys(catalog),
-		Array.from({ length: 15 }, (_, index) =>
+		Array.from({ length: 30 }, (_, index) =>
 			`question-${String(index + 1).padStart(2, "0")}`,
 		),
 	);
-	for (let question = 1; question <= 15; question += 1) {
+	for (let question = 1; question <= 30; question += 1) {
 		const key = `question-${String(question).padStart(2, "0")}`;
 		assert.deepEqual(Object.keys(catalog[key]), ["round", "column"]);
 		for (const style of ["round", "column"]) {
@@ -284,11 +289,14 @@ test("both real question styles pair Q1-Q15 with their actual dimensions", () =>
 		}
 		assert.equal(catalog[key].round.width, 3270);
 		assert.equal(catalog[key].round.height, 1620);
-		assert.equal(catalog[key].column.height, 1612);
+		assert.equal(catalog[key].column.width, 3270);
+		assert.equal(catalog[key].column.height, 1620);
+		assert.match(catalog[key].round.src, /_flower_round_preview_row\.png$/);
+		assert.match(catalog[key].column.src, /_flower_round_preview_column\.png$/);
 	}
 
-	assert.equal(Object.hasOwn(catalog, "question-16"), false);
-	assert.doesNotMatch(JSON.stringify(catalog), /Q00(?:1[6-9]|2\d|30)_/);
+	assert.equal(Object.hasOwn(catalog, "question-31"), false);
+	assert.doesNotMatch(JSON.stringify(catalog), /Q0031_/);
 });
 
 test("question catalog rejects malformed, duplicate, missing, and invalid metadata", () => {
@@ -296,7 +304,7 @@ test("question catalog rejects malformed, duplicate, missing, and invalid metada
 		default: { src, width: 100, height: 50 },
 	});
 	const complete = (middle) => Object.fromEntries(
-		Array.from({ length: 15 }, (_, index) => {
+		Array.from({ length: 30 }, (_, index) => {
 			const number = String(index + 1).padStart(4, "0");
 			return [`/Q${number}_${middle}.png`, metadata(`/${middle}-${number}.png`)];
 		}),
@@ -306,10 +314,10 @@ test("question catalog rejects malformed, duplicate, missing, and invalid metada
 
 	assert.doesNotThrow(() => buildQuestionCatalog({ round, column }));
 	const boundedCatalog = buildQuestionCatalog({
-		round: { ...round, "/Q0016_future-round.png": metadata("/future-round.png") },
-		column: { ...column, "/Q0016_future-column.png": metadata("/future-column.png") },
+		round: { ...round, "/Q0031_future-round.png": metadata("/future-round.png") },
+		column: { ...column, "/Q0031_future-column.png": metadata("/future-column.png") },
 	});
-	assert.equal(Object.hasOwn(boundedCatalog, "question-16"), false);
+	assert.equal(Object.hasOwn(boundedCatalog, "question-31"), false);
 	assert.deepEqual(
 		Object.keys(buildQuestionCatalog({ round, column }, { min: 2, max: 3 })),
 		["question-02", "question-03"],
@@ -333,10 +341,10 @@ test("question catalog rejects malformed, duplicate, missing, and invalid metada
 		/Duplicate round question 1/,
 	);
 	const missingRound = { ...round };
-	delete missingRound["/Q0015_round-middle.png"];
+	delete missingRound["/Q0030_round-middle.png"];
 	assert.throws(
 		() => buildQuestionCatalog({ round: missingRound, column }),
-		/Missing round question assets: Q0015/,
+		/Missing round question assets: Q0030/,
 	);
 	assert.throws(
 		() => buildQuestionCatalog({

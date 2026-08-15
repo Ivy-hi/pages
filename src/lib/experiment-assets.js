@@ -87,12 +87,12 @@ function indexStyleModules(style, moduleMap, min, max) {
 }
 
 /**
- * Build the paired Q1-Q15 catalog from eager Astro image module maps.
+ * Build the paired Q1-Q30 catalog from eager Astro image module maps.
  *
  * @param {{ round: Record<string, { default: object }>, column: Record<string, { default: object }> }} styleModules
  * @param {{ min?: number, max?: number }} options
  */
-export function buildQuestionCatalog(styleModules, { min = 1, max = 15 } = {}) {
+export function buildQuestionCatalog(styleModules, { min = 1, max = 30 } = {}) {
 	if (!Number.isInteger(min) || !Number.isInteger(max) || min < 1 || max < min) {
 		throw new Error("Question range must use positive integers with min less than or equal to max.");
 	}
