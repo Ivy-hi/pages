@@ -1,3 +1,10 @@
+import ifac2026SlidesUrl from "../assets/ifac2026.pdf?url";
+
+export interface ResearchMaterial {
+	label: string;
+	href: string;
+}
+
 export interface ResearchArea {
 	id: string;
 	sectionLabel: string;
@@ -9,6 +16,7 @@ export interface ResearchArea {
 	highlights: string[];
 	closing?: string;
 	keywords: string[];
+	materials?: ResearchMaterial[];
 }
 
 export const researchProfile = {
@@ -103,6 +111,12 @@ export const researchAreas: ResearchArea[] = [
 			"Balancing Sustainability and Output in Renewable-Resource Differential Games via a Fairness-Competition Lever",
 		workType: "Paper",
 		status: "To be presented at the 23rd IFAC World Congress, Busan, Republic of Korea, 2026",
+		materials: [
+			{
+				label: "Slides (PDF)",
+				href: ifac2026SlidesUrl,
+			},
+		],
 		description: [
 			"This work investigates strategic resource exploitation among self-interested agents sharing renewable common-pool resources.",
 			"We formulate a two-player differential game where a redistribution parameter controls the incentive structure between fairness-oriented sharing and competition-driven rewards. The study focuses on stationary feedback Nash equilibria and develops a theoretical framework based on Hamilton-Jacobi-Bellman equations, auxiliary dynamical systems, and stable manifold analysis.",
