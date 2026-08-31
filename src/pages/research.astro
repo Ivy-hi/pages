@@ -73,6 +73,23 @@ const pageSections = [
 											<dt>Status</dt>
 											<dd>{area.status}</dd>
 										</div>
+										{area.materials && (
+											<div>
+												<dt>Materials</dt>
+												<dd class="research-materials">
+													{area.materials.map((material) => (
+														<a
+															href={material.href}
+															target="_blank"
+															rel="noopener noreferrer"
+															aria-label={`${material.label}, opens in a new tab`}
+														>
+															{material.label}
+														</a>
+													))}
+												</dd>
+											</div>
+										)}
 									</dl>
 								</header>
 
@@ -351,6 +368,27 @@ const pageSections = [
 	.research-meta dt {
 		color: var(--portfolio-muted);
 		text-transform: uppercase;
+	}
+
+	.research-materials {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem 0.8rem;
+	}
+
+	.research-materials a {
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 3px;
+	}
+
+	.research-materials a:hover {
+		color: var(--portfolio-accent);
+	}
+
+	.research-materials a:focus-visible {
+		outline: 1px solid currentColor;
+		outline-offset: 3px;
 	}
 
 	.research-area__body {
