@@ -178,5 +178,10 @@
     "file": "boring-light.jpg",
     "alt": "Buildings in the city",
     "caption": "Boring light"
+  },
+  {
+    "file": "seoul-after-dark.jpg",
+    "alt": "A warmly lit Korean restaurant with green-framed windows on a rainy night in Seoul",
+    "caption": "Seoul after dark"
   }
 ]
