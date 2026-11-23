@@ -46,7 +46,7 @@ const portrait = entry.data.cover.height > entry.data.cover.width;
 			<Image
 				src={entry.data.cover}
 				alt={entry.data.coverAlt}
-				width={1600}
+				width={Math.min(1600, entry.data.cover.width)}
 				widths={portrait ? [480, 800, 1280, 1600] : undefined}
 				sizes={portrait ? "(max-width: 680px) calc(100vw - 40px), 640px" : undefined}
 				format="webp"
