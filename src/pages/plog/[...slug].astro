@@ -22,11 +22,12 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const copy = getPlogCopy(entry.data.lang);
 const formattedDate = formatPlogDate(entry.data.pubDate, entry.data.lang);
+const portrait = entry.data.cover.height > entry.data.cover.width;
 ---
 
 <PortfolioLayout
 	title={`${entry.data.title} | ${portfolio.name}`}
-	description={entry.data.description}
+	description={entry.data.description ?? entry.data.coverAlt}
 	lang={entry.data.lang}
 >
 	<article class="plog-post" lang={entry.data.lang}>
@@ -38,14 +39,16 @@ const formattedDate = formatPlogDate(entry.data.pubDate, entry.data.lang);
 		<header class="plog-post__head">
 			<time datetime={entry.data.pubDate.toISOString()}>{formattedDate}</time>
 			<h1>{entry.data.title}</h1>
-			<p>{entry.data.description}</p>
+			{entry.data.description && <p>{entry.data.description}</p>}
 		</header>
 
-		<figure class="plog-post__cover">
+		<figure class:list={["plog-post__cover", { "plog-post__cover--portrait": portrait }]}>
 			<Image
 				src={entry.data.cover}
 				alt={entry.data.coverAlt}
 				width={1600}
+				widths={portrait ? [480, 800, 1280, 1600] : undefined}
+				sizes={portrait ? "(max-width: 680px) calc(100vw - 40px), 640px" : undefined}
 				format="webp"
 				quality={82}
 			/>
@@ -117,6 +120,16 @@ const formattedDate = formatPlogDate(entry.data.pubDate, entry.data.lang);
 		object-fit: cover;
 	}
 
+	.plog-post__cover--portrait {
+		width: min(640px, 100%);
+		margin-inline: auto;
+		aspect-ratio: auto;
+	}
+
+	.plog-post__cover--portrait :global(img) {
+		height: auto;
+	}
+
 	.plog-post__body {
 		width: min(700px, 100%);
 		margin: 2.2rem auto 0;
@@ -173,7 +186,7 @@ const formattedDate = formatPlogDate(entry.data.pubDate, entry.data.lang);
 			font-size: 38px;
 		}
 
-		.plog-post__cover {
+		.plog-post__cover:not(.plog-post__cover--portrait) {
 			aspect-ratio: 4 / 3;
 		}
 	}

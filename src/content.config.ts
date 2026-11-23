@@ -6,7 +6,7 @@ const plog = defineCollection({
 	schema: ({ image }) =>
 		z.object({
 			title: z.string(),
-			description: z.string(),
+			description: z.string().optional(),
 			pubDate: z.coerce.date(),
 			lang: z.enum(["en", "zh-CN"]).default("en"),
 			cover: image(),
