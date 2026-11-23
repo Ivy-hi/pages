@@ -12,6 +12,7 @@ const localizedEntries = entries.map((entry) => ({
 	entry,
 	copy: getPlogCopy(entry.data.lang),
 	formattedDate: formatPlogDate(entry.data.pubDate, entry.data.lang),
+	portrait: entry.data.cover.height > entry.data.cover.width,
 }));
 ---
 
@@ -27,13 +28,15 @@ const localizedEntries = entries.map((entry) => ({
 
 	<section class="plog-list" aria-label="Plog entries">
 		{
-			localizedEntries.map(({ entry, copy, formattedDate }) => (
-				<article class="plog-entry" lang={entry.data.lang}>
+			localizedEntries.map(({ entry, copy, formattedDate, portrait }) => (
+				<article class:list={["plog-entry", { "plog-entry--portrait": portrait }]} lang={entry.data.lang}>
 					<a class="plog-entry__image" href={`/plog/${entry.id}/`} aria-label={copy.readAria(entry.data.title)}>
 						<Image
 							src={entry.data.cover}
 							alt={entry.data.coverAlt}
 							width={1200}
+							widths={portrait ? [480, 840, 1200] : undefined}
+							sizes={portrait ? "(max-width: 480px) calc(100vw - 40px), 420px" : undefined}
 							format="webp"
 							quality={82}
 						/>
@@ -43,7 +46,7 @@ const localizedEntries = entries.map((entry) => ({
 						<h2>
 							<a href={`/plog/${entry.id}/`}>{entry.data.title}</a>
 						</h2>
-						<p>{entry.data.description}</p>
+						{entry.data.description && <p>{entry.data.description}</p>}
 						<a class="plog-entry__link" href={`/plog/${entry.id}/`}>{copy.read}</a>
 					</div>
 				</article>
@@ -100,6 +103,15 @@ const localizedEntries = entries.map((entry) => ({
 		transition: transform 500ms ease;
 	}
 
+	.plog-entry--portrait .plog-entry__image {
+		width: min(420px, 100%);
+		aspect-ratio: auto;
+	}
+
+	.plog-entry--portrait .plog-entry__image :global(img) {
+		height: auto;
+	}
+
 	.plog-entry__image:hover :global(img),
 	.plog-entry__image:focus-visible :global(img) {
 		transform: scale(1.018);
@@ -153,6 +165,12 @@ const localizedEntries = entries.map((entry) => ({
 		margin-top: auto;
 		padding-top: 1.25rem;
 		text-underline-offset: 4px;
+	}
+
+	@media (min-width: 901px) {
+		.plog-entry--portrait {
+			grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+		}
 	}
 
 	@media (max-width: 900px) {
